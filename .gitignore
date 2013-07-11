@@ -7,4 +7,5 @@
 *.iws
 build/**
 out/**
+.gradle/**
 
