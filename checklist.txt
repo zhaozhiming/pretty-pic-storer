@@ -1,4 +1,4 @@
-1.make app secret invisible;
+1.make app secret invisible;--clean
 2.use jquery in project;
 3.use progress bar when download pictures;
 4.make app face beautiful;

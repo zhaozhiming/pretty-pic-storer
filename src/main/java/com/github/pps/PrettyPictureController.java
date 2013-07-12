@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,15 +32,24 @@ public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
+    @Value("${appKey}")
+    private String appKey;
+
+    @Value("${appSecret}")
+    private String appSecret;
+
+    @Value("${callbackurl}")
+    private String callBackUrl;
+
     private SinaWeibo2AccessToken accessToken;
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public String index(ModelMap model) throws Exception {
         System.out.println("start=================");
 
-        String authUrl = WeiboClientFactory.getInstacne()
+        String authUrl = WeiboClientFactory.getInstacne(appKey, appSecret)
                 .getAuthorizationUrl(ResponseType.Code, DisplayType.Default, "test",
-                        "http://apps.weibo.com/prettypicturequery/code");
+                        callBackUrl + "/code");
         System.out.println(String.format("authUrl:%s", authUrl));
         System.out.println("auth start");
 
@@ -77,7 +87,7 @@ public class PrettyPictureController {
 
         String rootPath = request.getParameter("rootPath");
 
-        WeiboClient client = WeiboClientFactory.getInstacne();
+        WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
         StatusService statusService = client.getStatusService();
 
         List<Status> totalStatuses = getTotalStatuses(uids, statusService);
@@ -131,10 +141,9 @@ public class PrettyPictureController {
 
     private SinaWeibo2AccessToken getAccessTokenBy(String code) {
         if (accessToken == null) {
-            accessToken = WeiboClientFactory.getInstacne()
-                    .getAccessToken(GrantType.AuthorizationCode, code,
-                            "http://apps.weibo.com/prettypicturequery");
-            WeiboClientFactory.getInstacne().setAccessToken(accessToken);
+            WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
+            accessToken = client.getAccessToken(GrantType.AuthorizationCode, code, callBackUrl);
+            client.setAccessToken(accessToken);
         }
         return accessToken;
     }

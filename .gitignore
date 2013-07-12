@@ -8,4 +8,5 @@
 build/**
 out/**
 .gradle/**
+src/main/webapp/WEB-INF/config/app.properties
 
