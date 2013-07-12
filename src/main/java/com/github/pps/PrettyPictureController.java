@@ -67,12 +67,9 @@ public class PrettyPictureController {
 
         System.out.println(String.format("accessToken:%s", accessToken));
         model.addAttribute("token", accessToken.getToken());
-        model.addAttribute("uid", accessToken.getUid());
-        model.addAttribute("remindIn", accessToken.getRemindIn());
-        model.addAttribute("expiresIn", accessToken.getExpiresIn());
-        model.addAttribute("code", code);
+        model.addAttribute("appKey", appKey);
         System.out.println("listFriends finish");
-        return "prettyPicture";
+        return "pretty-picture";
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
@@ -82,20 +79,20 @@ public class PrettyPictureController {
         System.out.println("friends:" + friends);
 
         String[] friendArray = friends.split(";");
-        List<String> uids = Arrays.asList(friendArray);
-        System.out.println("uids:" + uids);
+        List<String> uidList = Arrays.asList(friendArray);
+        System.out.println("uidList:" + uidList);
 
         String rootPath = request.getParameter("rootPath");
 
         WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
         StatusService statusService = client.getStatusService();
 
-        List<Status> totalStatuses = getTotalStatuses(uids, statusService);
-        JSONObject result = PictureSaveUtil.save(rootPath, uids, totalStatuses);
+        List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
+        JSONObject result = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
         return result.toString();
     }
 
-    private List<Status> getTotalStatuses(List<String> uids, StatusService statusService) throws WeiboClientException {
+    private List<Status> getTotalStatuses(List<String> uidList, StatusService statusService) throws WeiboClientException {
         int page = 1;
         List<Status> totalStatuses = Lists.newArrayList();
         boolean flag = true;
@@ -111,7 +108,7 @@ public class PrettyPictureController {
                 }
 
                 String uid = Long.toString(status.getUser().getId());
-                if (!uids.contains(uid)) continue;
+                if (!uidList.contains(uid)) continue;
 
                 totalStatuses.add(status);
                 System.out.println("picture create at time:" + new DateTime(status.getCreatedAt()).toString(
