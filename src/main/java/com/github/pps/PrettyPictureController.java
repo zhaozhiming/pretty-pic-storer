@@ -2,6 +2,7 @@ package com.github.pps;
 
 import com.github.pps.util.PictureSaveUtil;
 import com.github.pps.util.WeiboClientFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -32,6 +33,7 @@ public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
+    public static final int MAX_UID_SIZE = 5;
     @Value("${appKey}")
     private String appKey;
 
@@ -75,21 +77,43 @@ public class PrettyPictureController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
     public String savePictures(HttpServletRequest request) throws Exception {
+        List<String> uidList = getUidList(request);
+        String rootPath = getRootPath(request);
+
+        StatusService statusService = getStatusService();
+        List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
+        JSONObject result = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
+        return result.toString();
+    }
+
+    private StatusService getStatusService() {
+        WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
+        return client.getStatusService();
+    }
+
+    private String getRootPath(HttpServletRequest request) {
+        String rootPath = request.getParameter("rootPath");
+        if (Strings.isNullOrEmpty(rootPath)) {
+            throw new RuntimeException("rootPath is empty");
+        }
+        System.out.println("rootPath:" + rootPath);
+        return rootPath;
+    }
+
+    private List<String> getUidList(HttpServletRequest request) {
         String friends = request.getParameter("friends");
+        if (Strings.isNullOrEmpty(friends)) {
+            throw new RuntimeException("friends is empty");
+        }
         System.out.println("friends:" + friends);
 
         String[] friendArray = friends.split(";");
         List<String> uidList = Arrays.asList(friendArray);
+        if (uidList.size() > MAX_UID_SIZE) {
+            throw new RuntimeException("uid size must be <= 5");
+        }
         System.out.println("uidList:" + uidList);
-
-        String rootPath = request.getParameter("rootPath");
-
-        WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
-        StatusService statusService = client.getStatusService();
-
-        List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
-        JSONObject result = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
-        return result.toString();
+        return uidList;
     }
 
     private List<Status> getTotalStatuses(List<String> uidList, StatusService statusService) throws WeiboClientException {

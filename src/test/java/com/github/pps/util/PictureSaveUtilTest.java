@@ -60,15 +60,19 @@ public class PictureSaveUtilTest {
     }
 
     @Test
-    public void should_do_nothing_when_parameter_is_empty() throws IOException {
-        assertNull(PictureSaveUtil.save(null, null, null));
+    public void should_do_nothing_when_parameter_is_empty() throws Exception {
+        PictureSaveUtil.save(null, null, null);
         assertThat(root.exists(), is(false));
 
-        assertNull(PictureSaveUtil.save(ROOT_PATH, null, null));
+        PictureSaveUtil.save(ROOT_PATH, null, null);
         assertThat(root.exists(), is(false));
 
-        assertNull(PictureSaveUtil.save(ROOT_PATH, uids, null));
+        JSONObject result = PictureSaveUtil.save(ROOT_PATH, uids, null);
         assertThat(root.exists(), is(false));
+
+        assertThat(result.getInt("fileCount"), is(0));
+        assertThat(result.getString("savePath"), is(ROOT_PATH));
+        assertThat(result.getString("consumeTime"), is("0:00:00"));
     }
 
     @Test

@@ -19,9 +19,9 @@ public class PictureSaveUtil {
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     public static JSONObject save(String rootPath, List<String> uids, List<Status> statues) throws IOException {
-        if (Strings.isNullOrEmpty(rootPath)) return null;
-        if (uids == null || uids.isEmpty()) return null;
-        if (statues == null || statues.isEmpty()) return null;
+        if (Strings.isNullOrEmpty(rootPath)) return createSaveInfo(0, rootPath, 0);
+        if (uids == null || uids.isEmpty()) return createSaveInfo(0, rootPath, 0);
+        if (statues == null || statues.isEmpty()) return createSaveInfo(0, rootPath, 0);
 
         long startTime = System.currentTimeMillis();
         File root = mkdir(rootPath);
@@ -57,7 +57,7 @@ public class PictureSaveUtil {
         }
 
         long endTime = System.currentTimeMillis();
-        return createSaveInfo(fileCount, todayFolder, endTime - startTime);
+        return createSaveInfo(fileCount, todayFolder.getAbsolutePath(), endTime - startTime);
     }
 
     private static File mkdirUserFolder(File todayFolder, Status status) throws IOException {
@@ -66,11 +66,11 @@ public class PictureSaveUtil {
         return mkdir(userFolderPath);
     }
 
-    private static JSONObject createSaveInfo(int fileCount, File todayFolder, long consumeTime) {
+    private static JSONObject createSaveInfo(int fileCount, String savePath, long consumeTime) {
         JSONObject result = new JSONObject();
         try {
             result.put("fileCount", fileCount);
-            result.put("savePath", todayFolder.getAbsoluteFile());
+            result.put("savePath", savePath);
             result.put("consumeTime", fmtConsumeTime(consumeTime / 1000));
         } catch (JSONException e) {
             throw new RuntimeException(e.getMessage());
