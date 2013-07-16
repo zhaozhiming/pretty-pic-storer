@@ -171,7 +171,6 @@ public class PictureSaveUtilTest {
         assertThat(new File(pictureFilePath).exists(), is(false));
     }
 
-
     private Status createStatus(long uid, String screenName, Date createdAt
             , String originalPic, Status retweetedStatus) {
         Status statue = new Status();

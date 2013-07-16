@@ -28,6 +28,13 @@ public class PictureSaveUtil {
         File todayFolder = createTodayFolder(root);
 
         System.out.println("total statuses size: " + statues.size());
+        int fileCount = saveAllPicFiles(statues, todayFolder);
+
+        long endTime = System.currentTimeMillis();
+        return createSaveInfo(fileCount, todayFolder.getAbsolutePath(), endTime - startTime);
+    }
+
+    private static int saveAllPicFiles(List<Status> statues, File todayFolder) throws IOException {
         int fileCount = 0;
         for (Status status : statues) {
             String originalPic = status.getOriginalPic();
@@ -46,18 +53,20 @@ public class PictureSaveUtil {
                 continue;
             }
 
-            File userFolder = mkdirUserFolder(todayFolder, status);
-            String pictureFilePath = userFolder.getAbsolutePath() + File.separator + pictureFileName;
-            File pictureFile = new File(pictureFilePath);
+            File pictureFile = getPictureFile(todayFolder, status, pictureFileName);
             if (pictureFile.exists()) continue;
 
             savePicture(originalPic, pictureFile);
             fileCount++;
-            System.out.printf("file-%d: save picture: %s%n", fileCount, pictureFilePath);
+            System.out.printf("file-%d: save picture: %s%n", fileCount, pictureFile.getAbsolutePath());
         }
+        return fileCount;
+    }
 
-        long endTime = System.currentTimeMillis();
-        return createSaveInfo(fileCount, todayFolder.getAbsolutePath(), endTime - startTime);
+    private static File getPictureFile(File todayFolder, Status status, String pictureFileName) throws IOException {
+        File userFolder = mkdirUserFolder(todayFolder, status);
+        String pictureFilePath = userFolder.getAbsolutePath() + File.separator + pictureFileName;
+        return new File(pictureFilePath);
     }
 
     private static File mkdirUserFolder(File todayFolder, Status status) throws IOException {

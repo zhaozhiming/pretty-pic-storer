@@ -30,9 +30,9 @@ $(document).ready(function () {
             dataType: 'text',
             success: function (data) {
                 var result = jQuery.parseJSON(data);
-                var dialogText = "文件个数:" + result.fileCount + "<br/>";
-                dialogText += "存储路径:" + result.savePath + "<br/>";
-                dialogText += "耗费时间:" + result.consumeTime;
+                var dialogText = "文件个数: " + result.fileCount + "<br/>";
+                dialogText += "存储路径: " + result.savePath + "<br/>";
+                dialogText += "耗费时间: " + result.consumeTime;
                 $("#dialog").html(dialogText);
                 $("#dialog").dialog("open");
             },
