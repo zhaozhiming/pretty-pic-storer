@@ -1,6 +1,8 @@
 1.make app secret invisible;--clean
-2.use jquery in project;
+2.use jquery in project; --clean
 3.use progress bar when download pictures;
 4.make app face beautiful;
 5.use advance friends group interface replace time line interface;
 6.use log4j to log;
+7.zip the image files to a zip file and download this file; --clean
+8.use sae storer to store zip file;

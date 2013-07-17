@@ -34,7 +34,7 @@ public class PictureSaveUtilTest {
     private List<Status> statues;
 
     private DateTime today;
-    private String createDataFolderPath;
+    private String todayFolderPath;
     private ArrayList<String> uids;
     private String uid1FolderPath;
     private String uid2FolderPath;
@@ -49,9 +49,9 @@ public class PictureSaveUtilTest {
         Status statue = createStatus(UID1, USER1_NAME, today.toDate(), null, null);
         statues.add(statue);
 
-        createDataFolderPath = ROOT_PATH + File.separator + today.toString(PictureSaveUtil.FMT);
-        uid1FolderPath = createDataFolderPath + File.separator + UID1 + "-" + USER1_NAME;
-        uid2FolderPath = createDataFolderPath + File.separator + UID2 + "-" + USER2_NAME;
+        todayFolderPath = ROOT_PATH + File.separator + today.toString(PictureSaveUtil.FMT);
+        uid1FolderPath = todayFolderPath + File.separator + UID1 + "-" + USER1_NAME;
+        uid2FolderPath = todayFolderPath + File.separator + UID2 + "-" + USER2_NAME;
     }
 
     @After
@@ -67,12 +67,9 @@ public class PictureSaveUtilTest {
         PictureSaveUtil.save(ROOT_PATH, null, null);
         assertThat(root.exists(), is(false));
 
-        JSONObject result = PictureSaveUtil.save(ROOT_PATH, uids, null);
+        File zipFile = PictureSaveUtil.save(ROOT_PATH, uids, null);
         assertThat(root.exists(), is(false));
-
-        assertThat(result.getInt("fileCount"), is(0));
-        assertThat(result.getString("savePath"), is(ROOT_PATH));
-        assertThat(result.getString("consumeTime"), is("0:00:00"));
+        assertNull(zipFile);
     }
 
     @Test
@@ -87,10 +84,10 @@ public class PictureSaveUtilTest {
     @Test
     public void should_create_today_folder_in_root_folder_correct() throws IOException {
         PictureSaveUtil.save(ROOT_PATH, uids, statues);
-        assertThat(new File(createDataFolderPath).exists(), is(true));
+        assertThat(new File(todayFolderPath).exists(), is(true));
 
         PictureSaveUtil.save(ROOT_PATH, uids, statues);
-        assertThat(new File(createDataFolderPath).exists(), is(true));
+        assertThat(new File(todayFolderPath).exists(), is(true));
     }
 
     @Test
@@ -132,7 +129,7 @@ public class PictureSaveUtilTest {
         statues.add(statue3);
 
         uids.add(Long.toString(UID2));
-        JSONObject result = PictureSaveUtil.save(ROOT_PATH, uids, statues);
+        File zipFile = PictureSaveUtil.save(ROOT_PATH, uids, statues);
         String pictureFilePath1 = uid1FolderPath + File.separator + "level7.png";
         String pictureFilePath2 = uid2FolderPath + File.separator + "safecheck.png";
         String pictureFilePath3 = uid2FolderPath + File.separator + "transparent.gif";
@@ -141,9 +138,7 @@ public class PictureSaveUtilTest {
         assertThat(new File(pictureFilePath2).exists(), is(true));
         assertThat(new File(pictureFilePath3).exists(), is(false));
 
-        assertThat(result.getInt("fileCount"), is(2));
-        assertNotNull(result.getString("savePath"));
-        assertNotNull(result.getString("consumeTime"));
+        assertNotNull(zipFile);
     }
 
     @Test
@@ -169,6 +164,20 @@ public class PictureSaveUtilTest {
 
         String pictureFilePath = uid1FolderPath + File.separator + "transparent.gif";
         assertThat(new File(pictureFilePath).exists(), is(false));
+    }
+
+    @Test
+    public void should_generate_zip_file_in_today_folder() throws Exception {
+        statues.clear();
+        Status statue1 = createStatus(UID1, USER1_NAME, today.toDate(), PICTURE_1, null);
+        Status statue2 = createStatus(UID2, USER2_NAME, today.toDate(), PICTURE_2, null);
+        statues.add(statue1);
+        statues.add(statue2);
+
+        PictureSaveUtil.save(ROOT_PATH, uids, statues);
+
+        File zipFile = new File(ROOT_PATH + File.separator + today.toString(PictureSaveUtil.FMT) + ".zip");
+        assertThat(zipFile.exists(), is(true));
     }
 
     private Status createStatus(long uid, String screenName, Date createdAt

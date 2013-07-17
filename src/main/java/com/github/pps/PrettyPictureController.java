@@ -4,15 +4,14 @@ import com.github.pps.util.PictureSaveUtil;
 import com.github.pps.util.WeiboClientFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import weiboclient4j.StatusService;
 import weiboclient4j.WeiboClient;
 import weiboclient4j.WeiboClientException;
@@ -24,7 +23,10 @@ import weiboclient4j.oauth2.ResponseType;
 import weiboclient4j.oauth2.SinaWeibo2AccessToken;
 import weiboclient4j.params.Parameters;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,15 +77,40 @@ public class PrettyPictureController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @ResponseBody
-    public String savePictures(HttpServletRequest request) throws Exception {
+    public void savePictures(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<String> uidList = getUidList(request);
         String rootPath = getRootPath(request);
 
         StatusService statusService = getStatusService();
         List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
-        JSONObject result = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
-        return result.toString();
+        File zipFile = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
+
+        downloadZipFile(response, zipFile);
+    }
+
+    private void downloadZipFile(HttpServletResponse response, File zipFile) throws IOException {
+        InputStream ins = null;
+        OutputStream ous = null;
+        try {
+            ins = new BufferedInputStream(new FileInputStream(zipFile));
+            byte[] bytes = new byte[ins.available()];
+            ins.read(bytes);
+            IOUtils.closeQuietly(ins);
+
+            response.reset();
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment;filename=" + zipFile.getName());
+            Cookie cookie = new Cookie("fileDownload", "true");
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            ous = response.getOutputStream();
+            ous.write(bytes);
+            IOUtils.closeQuietly(ous);
+        } finally {
+            IOUtils.closeQuietly(ins);
+            IOUtils.closeQuietly(ous);
+        }
     }
 
     private StatusService getStatusService() {

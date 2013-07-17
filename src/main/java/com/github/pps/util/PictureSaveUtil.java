@@ -3,6 +3,8 @@ package com.github.pps.util;
 import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Zip;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
@@ -17,11 +19,12 @@ import static org.joda.time.DateTime.now;
 
 public class PictureSaveUtil {
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd");
+    public static final String ENCODEING_UTF_8 = "UTF-8";
 
-    public static JSONObject save(String rootPath, List<String> uids, List<Status> statues) throws IOException {
-        if (Strings.isNullOrEmpty(rootPath)) return createSaveInfo(0, rootPath, 0);
-        if (uids == null || uids.isEmpty()) return createSaveInfo(0, rootPath, 0);
-        if (statues == null || statues.isEmpty()) return createSaveInfo(0, rootPath, 0);
+    public static File save(String rootPath, List<String> uids, List<Status> statues) throws IOException {
+        if (Strings.isNullOrEmpty(rootPath)) return null;
+        if (uids == null || uids.isEmpty()) return null;
+        if (statues == null || statues.isEmpty()) return null;
 
         long startTime = System.currentTimeMillis();
         File root = mkdir(rootPath);
@@ -31,7 +34,22 @@ public class PictureSaveUtil {
         int fileCount = saveAllPicFiles(statues, todayFolder);
 
         long endTime = System.currentTimeMillis();
-        return createSaveInfo(fileCount, todayFolder.getAbsolutePath(), endTime - startTime);
+        JSONObject result = createSaveInfo(fileCount, todayFolder.getAbsolutePath(), endTime - startTime);
+        return zipImageFiles(rootPath, todayFolder);
+    }
+
+    private static File zipImageFiles(String rootPath, File todayFolder) {
+        File zipFile = new File(rootPath + File.separator + now().toString(FMT) + ".zip");
+
+        Zip zip = new Zip();
+        zip.setProject(new Project());
+        zip.setDestFile(zipFile);
+        zip.setBasedir(todayFolder);
+        zip.setUpdate(true);
+        zip.setEncoding(ENCODEING_UTF_8);
+        zip.execute();
+
+        return zipFile;
     }
 
     private static int saveAllPicFiles(List<Status> statues, File todayFolder) throws IOException {

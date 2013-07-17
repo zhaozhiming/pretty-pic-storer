@@ -16,6 +16,7 @@
     <script type="text/javascript" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=${appKey}" charset="utf-8"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-1.10.2.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
+    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.fileDownload.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 
     <script>

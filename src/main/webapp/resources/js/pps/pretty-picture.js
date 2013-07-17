@@ -23,39 +23,38 @@ $(document).ready(function () {
             friends: $("#friends").val(),
             rootPath: $("#rootPath").val()
         };
-        $.ajax({
-            url: '/pretty-pic-storer/save',
+
+        $.fileDownload('/pretty-pic-storer/save', {
+            httpMethod: "POST",
             data: ajaxData,
-            type: 'post',
-            dataType: 'text',
-            success: function (data) {
-                var result = jQuery.parseJSON(data);
-                var dialogText = "文件个数: " + result.fileCount + "<br/>";
-                dialogText += "存储路径: " + result.savePath + "<br/>";
-                dialogText += "耗费时间: " + result.consumeTime;
-                $("#dialog").html(dialogText);
-                $("#dialog").dialog("open");
-            },
-            error: function (e) {
-                $("#dialog").html("ERROR:<br/>" + e.statusText);
+            prepareCallback: function (url) {
+                $("#dialog").html("处理中...请稍候");
+                $("#dialog").dialog("option", "buttons", []);
                 $("#dialog").dialog("open");
             }
-        });
+        }).done(function () {
+                $("#dialog").html("保存图片完成");
+                $("#dialog").dialog("option", "buttons", [
+                    { text: "Ok", click: function () {
+                        $(this).dialog("close");
+                    } }
+                ]);
+            })
+            .fail(function () {
+                $("#dialog").html("出错了！");
+                $("#dialog").dialog("option", "buttons", [
+                    { text: "Ok", click: function () {
+                        $(this).dialog("close");
+                    } }
+                ]);
+            });
     });
 
     $("#dialog").dialog({
         autoOpen: false,
         dialogClass: "no-close",
         width: 500,
-        title: "结果",
-        buttons: [
-            {
-                text: "OK",
-                click: function () {
-                    $(this).dialog("close");
-                }
-            }
-        ]
+        title: "结果"
     });
 
 });
