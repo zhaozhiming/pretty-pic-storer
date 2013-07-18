@@ -4,14 +4,18 @@ import com.github.pps.util.PictureSaveUtil;
 import com.github.pps.util.WeiboClientFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import weiboclient4j.StatusService;
 import weiboclient4j.WeiboClient;
 import weiboclient4j.WeiboClientException;
@@ -29,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 @Controller
 public class PrettyPictureController {
@@ -72,6 +77,7 @@ public class PrettyPictureController {
         System.out.println(String.format("accessToken:%s", accessToken));
         model.addAttribute("token", accessToken.getToken());
         model.addAttribute("appKey", appKey);
+        model.addAttribute("currentUid", accessToken.getUid());
         System.out.println("listFriends finish");
         return "pretty-picture";
     }
@@ -83,9 +89,49 @@ public class PrettyPictureController {
 
         StatusService statusService = getStatusService();
         List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
+        PictureSaveUtil.recordProgress(rootPath, "save", 0, totalStatuses.size());
+
         File zipFile = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
 
         downloadZipFile(response, zipFile);
+        FileUtils.forceDelete(zipFile);
+    }
+
+    @RequestMapping(value = "/check", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String checkProgress(HttpServletRequest request) throws Exception {
+        String rootPath = getRootPath(request);
+
+        File checkFile = new File(rootPath + File.separator + "check.properties");
+        if (!checkFile.exists()) {
+            checkFile.createNewFile();
+            String record = String.format("checkStatus=%s\nalreadySave=%d\ntotalCount=%d", "get", 0, 1);
+            Files.write(record.getBytes(), checkFile);
+        }
+
+        Properties properties = new Properties();
+        FileInputStream fis = new FileInputStream(checkFile);
+        properties.load(fis);
+        IOUtils.closeQuietly(fis);
+
+        String checkStatus = properties.getProperty("checkStatus");
+        String alreadySave = properties.getProperty("alreadySave");
+        String totalCount = properties.getProperty("totalCount");
+
+        System.out.println("checkStatus:" + checkStatus);
+        System.out.println("alreadySave:" + alreadySave);
+        System.out.println("totalCount:" + totalCount);
+
+        if ("zip".equals(checkStatus)) {
+            FileUtils.forceDelete(checkFile);
+        }
+
+        JSONObject result = new JSONObject();
+        result.put("checkStatus", checkStatus);
+        result.put("alreadySave", alreadySave);
+        result.put("totalCount", totalCount);
+        return result.toString();
     }
 
     private void downloadZipFile(HttpServletResponse response, File zipFile) throws IOException {
@@ -119,12 +165,9 @@ public class PrettyPictureController {
     }
 
     private String getRootPath(HttpServletRequest request) {
-        String rootPath = request.getParameter("rootPath");
-        if (Strings.isNullOrEmpty(rootPath)) {
-            throw new RuntimeException("rootPath is empty");
-        }
-        System.out.println("rootPath:" + rootPath);
-        return rootPath;
+        String currentUid = request.getParameter("currentUid");
+        System.out.println("currentUid:" + currentUid);
+        return "E:/my-pictures" + File.separator + currentUid;
     }
 
     private List<String> getUidList(HttpServletRequest request) {

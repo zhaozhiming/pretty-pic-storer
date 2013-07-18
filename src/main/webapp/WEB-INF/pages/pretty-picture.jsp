@@ -18,12 +18,6 @@
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.fileDownload.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
-
-    <script>
-        WB2.init({
-            'access_token': '${token}'
-        });
-    </script>
 </head>
 
 <body>
@@ -37,13 +31,9 @@
                 <form action="save" method="post" class="form-horizontal">
                     <div class="controls">
                         <input id="friends" name="friends" type="text"/>
+                        <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
+                        <input id="token" name="token" value="${token}" type="hidden"/>
                         <input id="friendSelector" type="button" value="select" class="btn"/>
-                    </div>
-                    <div class="controls">
-                        <input id="rootPath" name="rootPath" type="text"/>
-                    </div>
-                    <div class="controls">
-                        <input type="submit" value="Save Pictures" class="btn"/>
                     </div>
                     <div class="controls">
                         <input type="button" id="saveBtn" value="ajax Save Pictures" class="btn"/>
