@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -115,23 +116,22 @@ public class PrettyPictureController {
         properties.load(fis);
         IOUtils.closeQuietly(fis);
 
-        String checkStatus = properties.getProperty("checkStatus");
-        String alreadySave = properties.getProperty("alreadySave");
-        String totalCount = properties.getProperty("totalCount");
-
-        System.out.println("checkStatus:" + checkStatus);
-        System.out.println("alreadySave:" + alreadySave);
-        System.out.println("totalCount:" + totalCount);
+        JSONObject result = new JSONObject();
+        String checkStatus = setJsonResult(properties, result, "checkStatus");
+        setJsonResult(properties, result, "alreadySave");
+        setJsonResult(properties, result, "totalCount");
 
         if ("zip".equals(checkStatus)) {
             FileUtils.forceDelete(checkFile);
         }
-
-        JSONObject result = new JSONObject();
-        result.put("checkStatus", checkStatus);
-        result.put("alreadySave", alreadySave);
-        result.put("totalCount", totalCount);
         return result.toString();
+    }
+
+    private String setJsonResult(Properties properties, JSONObject result, String property) throws JSONException {
+        String checkStatus = properties.getProperty(property);
+        System.out.println(property + ":" + checkStatus);
+        result.put(property, checkStatus);
+        return checkStatus;
     }
 
     private void downloadZipFile(HttpServletResponse response, File zipFile) throws IOException {

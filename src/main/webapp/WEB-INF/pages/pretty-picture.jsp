@@ -33,10 +33,10 @@
                         <input id="friends" name="friends" type="text"/>
                         <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
                         <input id="token" name="token" value="${token}" type="hidden"/>
-                        <input id="friendSelector" type="button" value="select" class="btn"/>
+                        <input id="friendSelector" type="button" value="选择好友" class="btn"/>
                     </div>
                     <div class="controls">
-                        <input type="button" id="saveBtn" value="ajax Save Pictures" class="btn"/>
+                        <input type="button" id="saveBtn" value="Do it!" class="btn"/>
                     </div>
                 </form>
             </div>

@@ -32,7 +32,9 @@ public class PictureSaveUtil {
         System.out.println("total statuses size: " + statues.size());
         int fileCount = saveAllPicFiles(statues, todayFolder, rootPath);
         recordProgress(rootPath, "zip", fileCount, fileCount);
-        return zipImageFiles(rootPath, todayFolder);
+        File zipFile = zipImageFiles(rootPath, todayFolder);
+        FileUtils.deleteDirectory(todayFolder);
+        return zipFile;
     }
 
     public static File recordProgress(String rootPath, String status, int alreadySave, int totalCount)
@@ -59,10 +61,6 @@ public class PictureSaveUtil {
         zip.execute();
 
         return zipFile;
-    }
-
-    private static String getProgressFilePath(String rootPath) {
-        return rootPath + File.separator + now().toString(FMT) + ".properties";
     }
 
     private static int saveAllPicFiles(List<Status> statues, File todayFolder, String rootPath) throws IOException {
@@ -107,11 +105,6 @@ public class PictureSaveUtil {
         return mkdir(userFolderPath);
     }
 
-    private static String fmtConsumeTime(long consumeTime) {
-        return String.format("%d:%02d:%02d", consumeTime / 3600,
-                (consumeTime % 3600) / 60, (consumeTime % 60));
-    }
-
     private static File mkdir(String folderPath) throws IOException {
         File folder = new File(folderPath);
         FileUtils.forceMkdir(folder);
@@ -120,6 +113,11 @@ public class PictureSaveUtil {
 
     private static File createTodayFolder(File root) throws IOException {
         String todayFolderPath = root.getAbsolutePath() + File.separator + now().toString(FMT);
+        File todayFolder = new File(todayFolderPath);
+        if (todayFolder.exists()) {
+            FileUtils.deleteDirectory(todayFolder);
+        }
+
         return mkdir(todayFolderPath);
     }
 
