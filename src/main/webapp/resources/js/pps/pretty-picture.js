@@ -1,6 +1,11 @@
 $(document).ready(function () {
 
     function selectCallback(data) {
+        if(data.length > 5) {
+            $("#errorMsg").show();
+            return;
+        }
+
         var friends = "";
         for (var i = 0; i < data.length; i++) {
             friends = friends + data[i].id + ";";
@@ -22,6 +27,10 @@ $(document).ready(function () {
             }
         });
     });
+
+    $("#friends").watermark("请选择好友,好友个数请不要超过5");
+
+    $("#errorMsg").hide();
 
     $("#saveBtn").click(function () {
         var ajaxData = {
@@ -67,7 +76,7 @@ $(document).ready(function () {
 
                 if (status === "get") {
                     $("#dialog").html("开始获取微博...");
-                } else if(status === "save") {
+                } else if (status === "save") {
                     var content = "获取微博完成，开始下载图片..." + "<br/>";
                     content += "已下载: " + result.alreadySave;
                     content += ", 总共: " + result.totalCount;

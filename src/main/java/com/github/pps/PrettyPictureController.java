@@ -88,6 +88,9 @@ public class PrettyPictureController {
         List<String> uidList = getUidList(request);
         String rootPath = getRootPath(request);
 
+        //clean root path all files first
+        FileUtils.cleanDirectory(new File(rootPath));
+
         StatusService statusService = getStatusService();
         List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
         PictureSaveUtil.recordProgress(rootPath, "save", 0, totalStatuses.size());

@@ -13,10 +13,12 @@
     <link href="<c:url value="/resources/css/jquery/jquery-ui.css" />" rel="stylesheet">
     <link href="<c:url value="/resources/css/pps/pretty-picture.css" />" rel="stylesheet">
 
-    <script type="text/javascript" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=${appKey}" charset="utf-8"></script>
+    <script type="text/javascript" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=${appKey}"
+            charset="utf-8"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-1.10.2.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.fileDownload.js" />"></script>
+    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.watermark.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 </head>
 
@@ -28,17 +30,17 @@
             <h1>Users</h1>
 
             <div class="control-group">
-                <form action="save" method="post" class="form-horizontal">
-                    <div class="controls">
-                        <input id="friends" name="friends" type="text"/>
-                        <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
-                        <input id="token" name="token" value="${token}" type="hidden"/>
-                        <input id="friendSelector" type="button" value="选择好友" class="btn"/>
-                    </div>
-                    <div class="controls">
-                        <input type="button" id="saveBtn" value="Do it!" class="btn"/>
-                    </div>
-                </form>
+                <div class="controls">
+                    <input id="friends" name="friends" type="text" readonly/>
+                    <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
+                    <input id="token" name="token" value="${token}" type="hidden"/>
+                    <input id="friendSelector" type="button" value="选择好友" class="btn"/>
+
+                    <p id="errorMsg" class="error">好友数量不能超过5个</p>
+                </div>
+                <div class="controls">
+                    <input type="button" id="saveBtn" value="Do it!" class="btn"/>
+                </div>
             </div>
         </div>
     </div>
