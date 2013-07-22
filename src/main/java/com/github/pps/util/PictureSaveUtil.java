@@ -30,11 +30,8 @@ public class PictureSaveUtil {
         File todayFolder = createTodayFolder(root);
 
         System.out.println("total statuses size: " + statues.size());
-        int fileCount = saveAllPicFiles(statues, todayFolder, rootPath);
-        recordProgress(rootPath, "zip", fileCount, fileCount);
-        File zipFile = zipImageFiles(rootPath, todayFolder);
-        FileUtils.deleteDirectory(todayFolder);
-        return zipFile;
+        saveAllPicFiles(statues, todayFolder, rootPath);
+        return zipImageFiles(rootPath, todayFolder);
     }
 
     public static File recordProgress(String rootPath, String status, int alreadySave, int totalCount)
@@ -45,6 +42,7 @@ public class PictureSaveUtil {
         }
         String record = String.format("checkStatus=%s\nalreadySave=%d\ntotalCount=%d",
                 status, alreadySave, totalCount);
+        System.out.println("record: " + record);
         Files.write(record.getBytes(), checkFile);
         return checkFile;
     }
@@ -63,7 +61,7 @@ public class PictureSaveUtil {
         return zipFile;
     }
 
-    private static int saveAllPicFiles(List<Status> statues, File todayFolder, String rootPath) throws IOException {
+    private static void saveAllPicFiles(List<Status> statues, File todayFolder, String rootPath) throws IOException {
         int fileCount = 0;
         for (Status status : statues) {
             String originalPic = status.getOriginalPic();
@@ -90,7 +88,6 @@ public class PictureSaveUtil {
             recordProgress(rootPath, "save", fileCount, statues.size());
             System.out.printf("file-%d: save picture: %s%n", fileCount, pictureFile.getAbsolutePath());
         }
-        return fileCount;
     }
 
     private static File getPictureFile(File todayFolder, Status status, String pictureFileName) throws IOException {

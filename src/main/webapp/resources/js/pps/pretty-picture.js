@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
     function selectCallback(data) {
-        if(data.length > 5) {
+        if (data.length > 5) {
             $("#errorMsg").show();
             return;
         }
@@ -28,7 +28,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#friends").watermark("请选择好友,好友个数请不要超过5");
+    $("#friends").watermark("请选择好友...");
 
     $("#errorMsg").hide();
 
@@ -41,7 +41,7 @@ $(document).ready(function () {
         $.fileDownload('/pretty-pic-storer/save', {
             httpMethod: "POST",
             data: ajaxData,
-            prepareCallback: function (url) {
+            prepareCallback: function () {
                 $("#dialog").html("处理中...请稍候");
                 $("#dialog").dialog("option", "buttons", []);
                 $("#dialog").dialog("open");

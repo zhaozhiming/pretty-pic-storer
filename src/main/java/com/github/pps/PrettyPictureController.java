@@ -36,12 +36,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import static com.github.pps.util.PictureSaveUtil.FMT;
+import static com.github.pps.util.PictureSaveUtil.recordProgress;
+import static org.joda.time.DateTime.now;
+
 @Controller
 public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
-    public static final int MAX_UID_SIZE = 5;
+    private static final int MAX_UID_SIZE = 5;
+    private static final String SAVE_STATUS = "save";
+    private static final String GET_STATUS = "get";
+    private static final String ZIP_STATUS = "zip";
+
     @Value("${appKey}")
     private String appKey;
 
@@ -85,20 +93,39 @@ public class PrettyPictureController {
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public void savePictures(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        List<String> uidList = getUidList(request);
-        String rootPath = getRootPath(request);
+        try {
+            String rootPath = getRootPath(request);
+            //clean root path all files first
+            FileUtils.cleanDirectory(new File(rootPath));
 
-        //clean root path all files first
-        FileUtils.cleanDirectory(new File(rootPath));
+            StatusService statusService = getStatusService();
+            List<String> uidList = getUidList(request);
+            List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
+            int totalStatusSize = totalStatuses.size();
+            System.out.println("totalStatuses size:" + totalStatusSize);
+            recordProgress(rootPath, SAVE_STATUS, 0, totalStatusSize);
 
-        StatusService statusService = getStatusService();
-        List<Status> totalStatuses = getTotalStatuses(uidList, statusService);
-        PictureSaveUtil.recordProgress(rootPath, "save", 0, totalStatuses.size());
+            File zipFile = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
+            recordProgress(rootPath, ZIP_STATUS, totalStatusSize, totalStatusSize);
+            zipFile = dealNoPic(rootPath, zipFile);
 
-        File zipFile = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
+            downloadZipFile(response, zipFile);
+            FileUtils.forceDelete(zipFile);
+            FileUtils.deleteDirectory(new File(rootPath + File.separator + now().toString(FMT)));
+        } catch (Exception e) {
+            String rootPath = getRootPath(request);
+            recordProgress(rootPath, ZIP_STATUS, 0, 0);
+            throw new RuntimeException("save picture error");
+        }
+    }
 
-        downloadZipFile(response, zipFile);
-        FileUtils.forceDelete(zipFile);
+    private File dealNoPic(String rootPath, File zipFile) throws IOException {
+        if (zipFile == null) {
+            zipFile = new File(rootPath + File.separator + now().toString(FMT) + ".txt");
+            zipFile.createNewFile();
+            Files.write("没有图片可以下载".getBytes(), zipFile);
+        }
+        return zipFile;
     }
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
@@ -110,7 +137,7 @@ public class PrettyPictureController {
         File checkFile = new File(rootPath + File.separator + "check.properties");
         if (!checkFile.exists()) {
             checkFile.createNewFile();
-            String record = String.format("checkStatus=%s\nalreadySave=%d\ntotalCount=%d", "get", 0, 1);
+            String record = String.format("checkStatus=%s\nalreadySave=%d\ntotalCount=%d", GET_STATUS, 0, 1);
             Files.write(record.getBytes(), checkFile);
         }
 
@@ -124,7 +151,7 @@ public class PrettyPictureController {
         setJsonResult(properties, result, "alreadySave");
         setJsonResult(properties, result, "totalCount");
 
-        if ("zip".equals(checkStatus)) {
+        if (ZIP_STATUS.equals(checkStatus)) {
             FileUtils.forceDelete(checkFile);
         }
         return result.toString();
