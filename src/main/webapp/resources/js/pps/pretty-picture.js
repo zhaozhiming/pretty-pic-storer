@@ -7,11 +7,14 @@ $(document).ready(function () {
         }
 
         var friends = "";
+        var uids = "";
         for (var i = 0; i < data.length; i++) {
-            friends = friends + data[i].id + ";";
+            friends = friends + data[i].screen_name + ";";
+            uids = uids + data[i].id + ";";
         }
 
         $("#friends").val(friends);
+        $("#uids").val(uids);
     }
 
     WB2.init({
@@ -34,7 +37,7 @@ $(document).ready(function () {
 
     $("#saveBtn").click(function () {
         var ajaxData = {
-            friends: $("#friends").val(),
+            uids: $("#uids").val(),
             currentUid: $("#currentUid").val()
         };
 

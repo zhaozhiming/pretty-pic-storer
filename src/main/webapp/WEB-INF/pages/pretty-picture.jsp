@@ -31,6 +31,7 @@
                     <fieldset>
                         <legend>Legend</legend>
                         <input id="friends" name="friends" type="text" readonly required/>
+                        <input id="uids" name="uids" type="hidden"/>
                         <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
                         <input id="token" name="token" value="${token}" type="hidden"/>
                         <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>

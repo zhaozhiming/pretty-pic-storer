@@ -201,14 +201,14 @@ public class PrettyPictureController {
     }
 
     private List<String> getUidList(HttpServletRequest request) {
-        String friends = request.getParameter("friends");
-        if (Strings.isNullOrEmpty(friends)) {
-            throw new RuntimeException("friends is empty");
+        String uids = request.getParameter("uids");
+        if (Strings.isNullOrEmpty(uids)) {
+            throw new RuntimeException("uids is empty");
         }
-        System.out.println("friends:" + friends);
+        System.out.println("uids:" + uids);
 
-        String[] friendArray = friends.split(";");
-        List<String> uidList = Arrays.asList(friendArray);
+        String[] uidArray = uids.split(";");
+        List<String> uidList = Arrays.asList(uidArray);
         if (uidList.size() > MAX_UID_SIZE) {
             throw new RuntimeException("uid size must be <= 5");
         }
