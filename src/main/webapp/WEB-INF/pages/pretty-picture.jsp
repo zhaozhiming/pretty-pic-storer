@@ -18,7 +18,6 @@
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-1.10.2.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.fileDownload.js" />"></script>
-    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.watermark.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 </head>
 
@@ -29,14 +28,22 @@
             <div class="control-group">
                 <form>
                     <fieldset>
-                        <legend>Legend</legend>
-                        <input id="friends" name="friends" type="text" readonly required/>
-                        <input id="uids" name="uids" type="hidden"/>
-                        <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
-                        <input id="token" name="token" value="${token}" type="hidden"/>
-                        <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
-                        <span class="help-block">好友数量不能超过5个</span>
-                        <input type="button" id="saveBtn" value="Do it!" class="btn-primary"/>
+                        <legend><h3>美图微存</h3></legend>
+                        <div class="alert alert-info">
+                            美图微存可以选择好友获取<strong class="text-error">今日</strong>的微博图片，但注意好友数量不能超过<strong class="text-error">5</strong>个。
+                        </div>
+
+                        <div class="controls" >
+                            <input id="friends" placeholder="请选择好友..." name="friends" type="text" readonly required/>
+                            <input id="uids" name="uids" type="hidden"/>
+                            <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
+                            <input id="token" name="token" value="${token}" type="hidden"/>
+                            <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
+                            <input type="button" id="saveBtn" value="Do it!" class="btn-primary"/>
+                        </div>
+                        <div id="error" class="alert alert-error" hidden="hidden">
+                            好友数量不能超过5个
+                        </div>
                     </fieldset>
                 </form>
             </div>

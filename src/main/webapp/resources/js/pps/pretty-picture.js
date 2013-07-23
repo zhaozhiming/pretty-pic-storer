@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     function selectCallback(data) {
         if (data.length > 5) {
-            $("#errorMsg").show();
+            $("#error").show().fadeOut(4000);
             return;
         }
 
@@ -30,8 +30,6 @@ $(document).ready(function () {
             }
         });
     });
-
-    $("#friends").watermark("请选择好友...");
 
     $("#errorMsg").hide();
 
