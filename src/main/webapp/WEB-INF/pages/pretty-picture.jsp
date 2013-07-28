@@ -39,7 +39,7 @@
                             <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
                             <input id="token" name="token" value="${token}" type="hidden"/>
                             <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
-                            <input type="button" id="saveBtn" value="Do it!" class="btn-primary"/>
+                            <input type="button" id="saveBtn" value="保存图片" class="btn-primary"/>
                         </div>
                         <div id="error" class="alert alert-error" hidden="hidden">
                             好友数量不能超过5个

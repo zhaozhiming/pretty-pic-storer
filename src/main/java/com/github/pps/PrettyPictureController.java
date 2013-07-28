@@ -5,6 +5,7 @@ import com.github.pps.util.WeiboClientFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.sina.sae.util.SaeUserInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
@@ -23,7 +24,6 @@ import weiboclient4j.WeiboClientException;
 import weiboclient4j.model.Status;
 import weiboclient4j.model.Timeline;
 import weiboclient4j.oauth2.DisplayType;
-import weiboclient4j.oauth2.GrantType;
 import weiboclient4j.oauth2.ResponseType;
 import weiboclient4j.oauth2.SinaWeibo2AccessToken;
 import weiboclient4j.params.Parameters;
@@ -72,16 +72,18 @@ public class PrettyPictureController {
         System.out.println("auth start");
 
         model.addAttribute("authUrl", authUrl);
+        model.addAttribute("appKey", appKey);
+        model.addAttribute("callBackUrl", callBackUrl + "/code");
         return "index";
     }
 
     @RequestMapping(value = "/code", method = RequestMethod.POST)
     public String listFriends(HttpServletRequest request, ModelMap model) throws Exception {
         System.out.println("listFriends start");
-        String code = request.getParameter("code");
-        System.out.println(String.format("code:%s", code));
+        String signedRequest = request.getParameter("signed_request");
+        System.out.println(String.format("signed_request:%s", signedRequest));
 
-        SinaWeibo2AccessToken accessToken = getAccessTokenBy(code);
+        SinaWeibo2AccessToken accessToken = getAccessTokenBy(signedRequest);
 
         System.out.println(String.format("accessToken:%s", accessToken));
         model.addAttribute("token", accessToken.getToken());
@@ -197,7 +199,7 @@ public class PrettyPictureController {
     private String getRootPath(HttpServletRequest request) {
         String currentUid = request.getParameter("currentUid");
         System.out.println("currentUid:" + currentUid);
-        return "E:/my-pictures" + File.separator + currentUid;
+        return SaeUserInfo.getSaeTmpPath() + File.separator + currentUid;
     }
 
     private List<String> getUidList(HttpServletRequest request) {
@@ -260,10 +262,10 @@ public class PrettyPictureController {
         return "auth";
     }
 
-    private SinaWeibo2AccessToken getAccessTokenBy(String code) {
+    private SinaWeibo2AccessToken getAccessTokenBy(String token) {
         if (accessToken == null) {
             WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
-            accessToken = client.getAccessToken(GrantType.AuthorizationCode, code, callBackUrl);
+            accessToken = new SinaWeibo2AccessToken(token);
             client.setAccessToken(accessToken);
         }
         return accessToken;
