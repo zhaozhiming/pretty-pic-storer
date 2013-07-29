@@ -31,7 +31,10 @@ dependencies {
             "javax.servlet.jsp:jsp-api:2.1"
     )
 
+    provided files('./lib/bae-sdk-local-1.0.0.jar')
+
     compile files('./lib/sae-local-1.1.0.jar')
+    compile files('./lib/weibo4j.jar')
 
     compile (
             "org.springframework:spring-core:3.2.0.RELEASE",
@@ -46,6 +49,7 @@ dependencies {
             "commons-io:commons-io:2.4",
             "com.google.guava:guava:r09",
             "org.apache.ant:ant:1.9.2",
+            "commons-httpclient:commons-httpclient:3.1",
     )
     testCompile (
             "junit:junit:4.+"

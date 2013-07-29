@@ -18,13 +18,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import weibo4j.Oauth;
 import weiboclient4j.StatusService;
 import weiboclient4j.WeiboClient;
 import weiboclient4j.WeiboClientException;
 import weiboclient4j.model.Status;
 import weiboclient4j.model.Timeline;
-import weiboclient4j.oauth2.DisplayType;
-import weiboclient4j.oauth2.ResponseType;
 import weiboclient4j.oauth2.SinaWeibo2AccessToken;
 import weiboclient4j.params.Parameters;
 
@@ -64,14 +63,6 @@ public class PrettyPictureController {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public String index(ModelMap model) throws Exception {
         System.out.println("start=================");
-
-        String authUrl = WeiboClientFactory.getInstacne(appKey, appSecret)
-                .getAuthorizationUrl(ResponseType.Code, DisplayType.Default, "test",
-                        callBackUrl + "/code");
-        System.out.println(String.format("authUrl:%s", authUrl));
-        System.out.println("auth start");
-
-        model.addAttribute("authUrl", authUrl);
         model.addAttribute("appKey", appKey);
         model.addAttribute("callBackUrl", callBackUrl + "/code");
         return "index";
@@ -83,12 +74,17 @@ public class PrettyPictureController {
         String signedRequest = request.getParameter("signed_request");
         System.out.println(String.format("signed_request:%s", signedRequest));
 
-        SinaWeibo2AccessToken accessToken = getAccessTokenBy(signedRequest);
+        if (signedRequest == null) return "redirect:/";
+        Oauth auth = new Oauth();
+        auth.parseSignedRequest(signedRequest);
 
-        System.out.println(String.format("accessToken:%s", accessToken));
-        model.addAttribute("token", accessToken.getToken());
+        if (auth.user_id == null) return "redirect:/";
+
+        System.out.println(String.format("accessToken:%s", auth.access_token));
+        System.out.println(String.format("user id:%s", auth.user_id));
+        model.addAttribute("token", auth.access_token);
         model.addAttribute("appKey", appKey);
-        model.addAttribute("currentUid", accessToken.getUid());
+        model.addAttribute("currentUid", auth.user_id);
         System.out.println("listFriends finish");
         return "pretty-picture";
     }
@@ -97,8 +93,6 @@ public class PrettyPictureController {
     public void savePictures(HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
             String rootPath = getRootPath(request);
-            //clean root path all files first
-            FileUtils.cleanDirectory(new File(rootPath));
 
             StatusService statusService = getStatusService();
             List<String> uidList = getUidList(request);
@@ -199,7 +193,9 @@ public class PrettyPictureController {
     private String getRootPath(HttpServletRequest request) {
         String currentUid = request.getParameter("currentUid");
         System.out.println("currentUid:" + currentUid);
-        return SaeUserInfo.getSaeTmpPath() + File.separator + currentUid;
+        String saeTmpPath = SaeUserInfo.getSaeTmpPath();
+        System.out.println("saeTmpPath:" + saeTmpPath);
+        return saeTmpPath + File.separator + currentUid;
     }
 
     private List<String> getUidList(HttpServletRequest request) {
@@ -261,14 +257,4 @@ public class PrettyPictureController {
     public String authentication() throws Exception {
         return "auth";
     }
-
-    private SinaWeibo2AccessToken getAccessTokenBy(String token) {
-        if (accessToken == null) {
-            WeiboClient client = WeiboClientFactory.getInstacne(appKey, appSecret);
-            accessToken = new SinaWeibo2AccessToken(token);
-            client.setAccessToken(accessToken);
-        }
-        return accessToken;
-    }
-
 }

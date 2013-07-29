@@ -38,6 +38,7 @@
                             <input id="uids" name="uids" type="hidden"/>
                             <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
                             <input id="token" name="token" value="${token}" type="hidden"/>
+                            <input id="saveUrl" name="saveUrl" value="<c:url value="/save" />" type="hidden"/>
                             <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
                             <input type="button" id="saveBtn" value="保存图片" class="btn-primary"/>
                         </div>

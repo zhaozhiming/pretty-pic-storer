@@ -39,14 +39,14 @@ $(document).ready(function () {
             currentUid: $("#currentUid").val()
         };
 
-        $.fileDownload('/pretty-pic-storer/save', {
+        $.fileDownload($("#saveUrl").val(), {
             httpMethod: "POST",
             data: ajaxData,
             prepareCallback: function () {
                 $("#dialog").html("处理中...请稍候");
                 $("#dialog").dialog("option", "buttons", []);
                 $("#dialog").dialog("open");
-                checkProgress();
+//                checkProgress();
             }
         }).done(function () {
                 $("#dialog").html("保存图片完成");

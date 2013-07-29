@@ -11,7 +11,6 @@
     <script type="text/javascript" src="<c:url value="/resources/js/pps/index.js" />"></script>
 </head>
 <body>
-<input id="authUrl" name="authUrl" value="${authUrl}" type="hidden"/>
 <input id="appKey" name="appKey" value="${appKey}" type="hidden"/>
 <input id="callBackUrl" name="callBackUrl" value="${callBackUrl}" type="hidden"/>
 </body>
