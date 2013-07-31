@@ -6,8 +6,10 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import weiboclient4j.model.Status;
-import weiboclient4j.model.User;
+import weibo4j.model.Status;
+import weibo4j.model.User;
+import weibo4j.model.WeiboException;
+import weibo4j.org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,10 +182,10 @@ public class PictureSaveUtilTest {
     }
 
     private Status createStatus(long uid, String screenName, Date createdAt
-            , String originalPic, Status retweetedStatus) {
+            , String originalPic, Status retweetedStatus) throws WeiboException {
         Status statue = new Status();
-        User user1 = new User();
-        user1.setId(uid);
+        User user1 = new User(new JSONObject());
+        user1.setId(Long.toString(uid));
         user1.setScreenName(screenName);
         statue.setUser(user1);
         statue.setCreatedAt(createdAt);

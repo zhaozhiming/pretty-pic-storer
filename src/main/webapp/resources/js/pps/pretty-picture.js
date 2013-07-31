@@ -36,7 +36,8 @@ $(document).ready(function () {
     $("#saveBtn").click(function () {
         var ajaxData = {
             uids: $("#uids").val(),
-            currentUid: $("#currentUid").val()
+            currentUid: $("#currentUid").val(),
+            token: $("#token").val()
         };
 
         $.fileDownload($("#saveUrl").val(), {

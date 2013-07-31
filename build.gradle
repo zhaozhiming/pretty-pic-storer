@@ -3,8 +3,8 @@ apply plugin: 'idea'
 apply plugin: 'jetty'
 
 compileJava {
-    sourceCompatibility=1.6
-    targetCompatibility=1.6
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
 }
 
 jettyRun {
@@ -26,7 +26,7 @@ sourceSets {
 }
 
 dependencies {
-    provided (
+    provided(
             "javax.servlet:servlet-api:2.5",
             "javax.servlet.jsp:jsp-api:2.1"
     )
@@ -36,7 +36,7 @@ dependencies {
     compile files('./lib/sae-local-1.1.0.jar')
     compile files('./lib/weibo4j.jar')
 
-    compile (
+    compile(
             "org.springframework:spring-core:3.2.0.RELEASE",
             "org.springframework:spring-web:3.2.0.RELEASE",
             "org.springframework:spring-webmvc:3.2.0.RELEASE",
@@ -44,14 +44,13 @@ dependencies {
             "jstl:jstl:1.2",
             "org.springframework.data:spring-data-jpa:1.2.0.RELEASE",
             "org.json:json:20080701",
-            "com.github.hoverruan:weiboclient4j:0.4.3",
             "joda-time:joda-time:2.2",
             "commons-io:commons-io:2.4",
             "com.google.guava:guava:r09",
             "org.apache.ant:ant:1.9.2",
             "commons-httpclient:commons-httpclient:3.1",
     )
-    testCompile (
+    testCompile(
             "junit:junit:4.+"
     )
 }
