@@ -4,6 +4,7 @@ import com.github.pps.util.PictureSaveUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.sina.sae.storage.SaeStorage;
 import com.sina.sae.util.SaeUserInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,15 +26,13 @@ import weibo4j.model.StatusWapper;
 import weibo4j.model.WeiboException;
 import weibo4j.util.WeiboConfig;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static com.github.pps.util.PictureSaveUtil.FMT;
 import static org.joda.time.DateTime.now;
 
 @Controller
@@ -44,6 +43,7 @@ public class PrettyPictureController {
     private static final int MAX_UID_SIZE = 5;
     private static final String GET_STATUS = "get";
     private static final String ZIP_STATUS = "zip";
+    public static final String DOMAIN_NAME = "mydomain";
 
     @Value("${appKey}")
     private String appKey;
@@ -84,30 +84,24 @@ public class PrettyPictureController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public void savePictures(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String rootPath = getRootPath(request);
-
+    public
+    @ResponseBody
+    String savePictures(HttpServletRequest request) throws Exception {
         List<String> uidList = getUidList(request);
         List<Status> totalStatuses = getTotalStatuses(uidList, request.getParameter("token"));
         int totalStatusSize = totalStatuses.size();
         System.out.println("totalStatuses size:" + totalStatusSize);
 
-        File zipFile = PictureSaveUtil.save(rootPath, uidList, totalStatuses);
-        zipFile = dealNoPic(rootPath, zipFile);
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
+        SaeStorage storage = new SaeStorage();
 
-        downloadZipFile(response, zipFile);
-        FileUtils.forceDelete(zipFile);
-        FileUtils.deleteDirectory(new File(rootPath + File.separator + now().toString(FMT)));
-    }
+        String zipFileName = request.getParameter("currentUid") + "-" + now().getMillis() + ".zip";
+        storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
 
-    private File dealNoPic(String rootPath, File zipFile) throws IOException {
-        if (zipFile == null) {
-            zipFile = new File(rootPath + File.separator + now().toString(FMT) + ".txt");
-            System.out.println("zip file:" + zipFile.getAbsolutePath());
-            zipFile.createNewFile();
-            Files.write("没有图片可以下载".getBytes(), zipFile);
-        }
-        return zipFile;
+        String fileUrl = storage.getUrl(DOMAIN_NAME, zipFileName);
+        JSONObject result = new JSONObject();
+        result.put("fileUrl", fileUrl);
+        return result.toString();
     }
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
@@ -144,31 +138,6 @@ public class PrettyPictureController {
         System.out.println(property + ":" + checkStatus);
         result.put(property, checkStatus);
         return checkStatus;
-    }
-
-    private void downloadZipFile(HttpServletResponse response, File zipFile) throws IOException {
-        InputStream ins = null;
-        OutputStream ous = null;
-        try {
-            ins = new BufferedInputStream(new FileInputStream(zipFile));
-            byte[] bytes = new byte[ins.available()];
-            ins.read(bytes);
-            IOUtils.closeQuietly(ins);
-
-            response.reset();
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment;filename=" + zipFile.getName());
-            Cookie cookie = new Cookie("fileDownload", "true");
-            cookie.setPath("/");
-            response.addCookie(cookie);
-
-            ous = response.getOutputStream();
-            ous.write(bytes);
-            IOUtils.closeQuietly(ous);
-        } finally {
-            IOUtils.closeQuietly(ins);
-            IOUtils.closeQuietly(ous);
-        }
     }
 
     private String getRootPath(HttpServletRequest request) {

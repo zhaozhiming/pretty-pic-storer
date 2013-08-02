@@ -2,6 +2,7 @@ package com.github.pps.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +12,9 @@ import weibo4j.model.User;
 import weibo4j.model.WeiboException;
 import weibo4j.org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +33,7 @@ public class PictureSaveUtilTest {
     private static final String PICTURE_3 = "http://img.t.sinajs.cn/t4/appstyle/open/images/common/transparent.gif";
     private static final String USER1_NAME = "-张三_";
     private static final String USER2_NAME = "-李四_";
+    public static final String ZIP_NAME = "myzip.zip";
 
     private File root;
     private List<Status> statues;
@@ -192,6 +196,28 @@ public class PictureSaveUtilTest {
         statue.setOriginalPic(originalPic);
         statue.setRetweetedStatus(retweetedStatus);
         return statue;
+    }
+
+    @Test
+    public void should_return_zip_bytes_correct() throws Exception {
+        statues.clear();
+        Status statue1 = createStatus(UID1, USER1_NAME, today.toDate(), PICTURE_1, null);
+        Status statue2 = createStatus(UID2, USER2_NAME, today.toDate(), PICTURE_2, null);
+        statues.add(statue1);
+        statues.add(statue2);
+
+        root.createNewFile();
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(statues);
+        saveFile(zipFileBytes, ROOT_PATH + File.separator + ZIP_NAME);
+
+        assertThat(new File(ROOT_PATH + File.separator + ZIP_NAME).exists(), is(true));
+    }
+
+    private void saveFile(byte[] bytes, String zipFileName) throws IOException {
+        FileOutputStream fos = new FileOutputStream(new File(zipFileName));
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        bos.write(bytes);
+        IOUtils.closeQuietly(bos);
     }
 
 }

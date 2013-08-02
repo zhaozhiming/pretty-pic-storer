@@ -40,22 +40,27 @@ $(document).ready(function () {
             token: $("#token").val()
         };
 
-        $.fileDownload($("#saveUrl").val(), {
-            httpMethod: "POST",
+        $.ajax({
+            url: $("#saveUrl").val(),
             data: ajaxData,
-            prepareCallback: function () {
+            type: "POST",
+            dataType: "text",
+            beforeSend: function () {
                 $("#dialog").html("处理中...请稍候");
                 $("#dialog").dialog("option", "buttons", []);
                 $("#dialog").dialog("open");
-//                checkProgress();
             }
-        }).done(function () {
-                $("#dialog").html("保存图片完成");
+        }).done(function (data) {
+                var result = jQuery.parseJSON(data);
+                var fileUrl = result.fileUrl;
+
+                $("#dialog").html("保存图片完成,地址:" + fileUrl);
                 $("#dialog").dialog("option", "buttons", [
                     { text: "Ok", click: function () {
                         $(this).dialog("close");
                     } }
                 ]);
+
             }).fail(function () {
                 $("#dialog").html("出错了！");
                 $("#dialog").dialog("option", "buttons", [
