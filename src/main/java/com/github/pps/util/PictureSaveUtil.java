@@ -1,6 +1,7 @@
 package com.github.pps.util;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.zip.ZipEntry;
@@ -47,8 +48,8 @@ public class PictureSaveUtil {
     }
 
     private static InputStream putAllPicToZip(List<Status> statues, ZipOutputStream zos, InputStream is) throws IOException {
+        List<String> picZipPath = Lists.newArrayList();
         for (Status status : statues) {
-
             String originalPic = status.getOriginalPic();
             if (Strings.isNullOrEmpty(originalPic)) {
                 Status retweetedStatus = status.getRetweetedStatus();
@@ -69,6 +70,9 @@ public class PictureSaveUtil {
 
             String fullPicPath = getPicPath(status) + File.separator + picName;
             System.out.println("full pic path:" + fullPicPath);
+            if (picZipPath.contains(fullPicPath)) continue;
+
+            picZipPath.add(fullPicPath);
             zos.putNextEntry(new ZipEntry(fullPicPath));
 
             is = writeRemotePicToZip(zos, originalPic);
