@@ -50,14 +50,11 @@ $(document).ready(function () {
             }
         }).done(function (data) {
                 var result = jQuery.parseJSON(data);
-                var saveStatus = result.saveStatus;
+                var message = result.message;
                 var htmlContent;
 
-                if(saveStatus === "nothing") {
-                    htmlContent = "没有图片可以保存";
-                }
-                if(saveStatus === "success") {
-                    htmlContent = "保存图片完成";
+                if(message === "OK") {
+                    htmlContent = "已开始为您保存图片，完成时将私信通知您";
                 }
 
                 $("#dialog").html(htmlContent);

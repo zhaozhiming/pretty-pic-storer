@@ -55,7 +55,7 @@ public class PrettyPictureController {
 
     @RequestMapping(value = "/code", method = RequestMethod.POST)
     public String listFriends(HttpServletRequest request, ModelMap model) throws Exception {
-        System.out.println("listFriends start");
+        System.out.println("get user token start");
         String signedRequest = request.getParameter("signed_request");
         System.out.println(String.format("signed_request:%s", signedRequest));
 
@@ -70,7 +70,7 @@ public class PrettyPictureController {
         model.addAttribute("token", auth.access_token);
         model.addAttribute("appKey", appKey);
         model.addAttribute("currentUid", auth.user_id);
-        System.out.println("listFriends finish");
+        System.out.println("get user token finish");
         return "pretty-picture";
     }
 
@@ -78,28 +78,44 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String savePictures(HttpServletRequest request) throws Exception {
-        List<String> uidList = getUidList(request);
-        List<Status> totalStatuses = getTotalStatuses(uidList, request.getParameter("token"));
-        int totalStatusSize = totalStatuses.size();
-        System.out.println("totalStatuses size:" + totalStatusSize);
-
-        if (totalStatusSize == 0) return resultJson("nothing");
-
-        SaeStorage storage = new SaeStorage();
-        String zipFileName = request.getParameter("currentUid") + "-" + now().getMillis() + ".zip";
-        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
-        storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
-        return resultJson("success");
+        final String uids = request.getParameter("uids");
+        final String token = request.getParameter("token");
+        final String currentUid = request.getParameter("currentUid");
+        Thread thread = createSaveThread(uids, token, currentUid);
+        thread.start();
+        return resultJson("OK");
     }
 
-    private String resultJson(String status) throws JSONException {
+    private Thread createSaveThread(final String uids, final String token, final String currentUid) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<String> uidList = getUidList(uids);
+                    List<Status> totalStatuses = getTotalStatuses(uidList, token);
+                    int totalStatusSize = totalStatuses.size();
+                    System.out.println("totalStatuses size:" + totalStatusSize);
+
+                    if (totalStatusSize == 0) return;
+
+                    SaeStorage storage = new SaeStorage();
+                    String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
+                    byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
+                    storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    private String resultJson(String message) throws JSONException {
         JSONObject result = new JSONObject();
-        result.put("saveStatus", status);
+        result.put("message", message);
         return result.toString();
     }
 
-    private List<String> getUidList(HttpServletRequest request) {
-        String uids = request.getParameter("uids");
+    private List<String> getUidList(String uids) {
         if (Strings.isNullOrEmpty(uids)) {
             throw new RuntimeException("uids is empty");
         }
