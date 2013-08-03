@@ -31,8 +31,6 @@ dependencies {
             "javax.servlet.jsp:jsp-api:2.1"
     )
 
-    provided files('./lib/bae-sdk-local-1.0.0.jar')
-
     compile files('./lib/sae-local-1.1.0.jar')
     compile files('./lib/weibo4j.jar')
 

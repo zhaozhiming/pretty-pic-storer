@@ -3,11 +3,7 @@ package com.github.pps;
 import com.github.pps.util.PictureSaveUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import com.sina.sae.storage.SaeStorage;
-import com.sina.sae.util.SaeUserInfo;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
@@ -27,11 +23,8 @@ import weibo4j.model.WeiboException;
 import weibo4j.util.WeiboConfig;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static org.joda.time.DateTime.now;
 
@@ -41,9 +34,7 @@ public class PrettyPictureController {
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
-    private static final String GET_STATUS = "get";
-    private static final String ZIP_STATUS = "zip";
-    public static final String DOMAIN_NAME = "mydomain";
+    private static final String DOMAIN_NAME = "mydomain";
 
     @Value("${appKey}")
     private String appKey;
@@ -92,15 +83,18 @@ public class PrettyPictureController {
         int totalStatusSize = totalStatuses.size();
         System.out.println("totalStatuses size:" + totalStatusSize);
 
-        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
+        if (totalStatusSize == 0) return resultJson("nothing");
+
         SaeStorage storage = new SaeStorage();
-
         String zipFileName = request.getParameter("currentUid") + "-" + now().getMillis() + ".zip";
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
         storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
+        return resultJson("success");
+    }
 
-        String fileUrl = storage.getUrl(DOMAIN_NAME, zipFileName);
+    private String resultJson(String status) throws JSONException {
         JSONObject result = new JSONObject();
-        result.put("fileUrl", fileUrl);
+        result.put("saveStatus", status);
         return result.toString();
     }
 

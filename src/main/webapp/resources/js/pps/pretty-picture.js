@@ -50,9 +50,17 @@ $(document).ready(function () {
             }
         }).done(function (data) {
                 var result = jQuery.parseJSON(data);
-                var fileUrl = result.fileUrl;
+                var saveStatus = result.saveStatus;
+                var htmlContent;
 
-                $("#dialog").html("保存图片完成,地址:" + fileUrl);
+                if(saveStatus === "nothing") {
+                    htmlContent = "没有图片可以保存";
+                }
+                if(saveStatus === "success") {
+                    htmlContent = "保存图片完成";
+                }
+
+                $("#dialog").html(htmlContent);
                 $("#dialog").dialog("option", "buttons", [
                     { text: "Ok", click: function () {
                         $(this).dialog("close");
