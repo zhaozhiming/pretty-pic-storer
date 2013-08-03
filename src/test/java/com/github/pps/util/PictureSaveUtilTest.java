@@ -55,6 +55,11 @@ public class PictureSaveUtilTest {
     }
 
     @Test
+    public void should_return_null_when_statues_is_empty() throws Exception {
+        assertNull(PictureSaveUtil.getZipFileBytes(statues));
+    }
+
+    @Test
     public void should_return_zip_bytes_correct() throws Exception {
         Status statue1 = createStatus(UID1, USER1_NAME, today.toDate(), PICTURE_1, null);
         Status statue2 = createStatus(UID2, USER2_NAME, today.toDate(), PICTURE_2, null);
@@ -68,8 +73,16 @@ public class PictureSaveUtilTest {
     }
 
     @Test
-    public void should_return_null_when_statues_is_empty() throws Exception {
-        assertNull(PictureSaveUtil.getZipFileBytes(statues));
+    public void should_normal_zip_when_have_same_pic() throws Exception {
+        Status statue1 = createStatus(UID1, USER1_NAME, today.toDate(), PICTURE_1, null);
+        Status statue2 = createStatus(UID1, USER1_NAME, today.toDate(), null, statue1);
+        statues.add(statue1);
+        statues.add(statue2);
+
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(statues);
+        saveFile(zipFileBytes, ROOT_PATH + File.separator + ZIP_NAME);
+
+        assertThat(new File(ROOT_PATH + File.separator + ZIP_NAME).exists(), is(true));
     }
 
     private Status createStatus(long uid, String screenName, Date createdAt

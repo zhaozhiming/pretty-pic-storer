@@ -6,4 +6,5 @@
 6.zip the image files to a zip file and download this file; --clean
 7.use sae storer to store zip file; --clean
 8.use mysql to add task table;
-9.when picture name is same, must skip this picture;
+9.when picture name is same, must skip this picture; --clean
+10.use cron to delete table data;
