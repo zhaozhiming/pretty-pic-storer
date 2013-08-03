@@ -104,50 +104,6 @@ public class PrettyPictureController {
         return result.toString();
     }
 
-    @RequestMapping(value = "/check", method = RequestMethod.POST)
-    public
-    @ResponseBody
-    String checkProgress(HttpServletRequest request) throws Exception {
-        String rootPath = getRootPath(request);
-
-        File checkFile = new File(rootPath + File.separator + "check.properties");
-        if (!checkFile.exists()) {
-            checkFile.createNewFile();
-            String record = String.format("checkStatus=%s\nalreadySave=%d\ntotalCount=%d", GET_STATUS, 0, 1);
-            Files.write(record.getBytes(), checkFile);
-        }
-
-        Properties properties = new Properties();
-        FileInputStream fis = new FileInputStream(checkFile);
-        properties.load(fis);
-        IOUtils.closeQuietly(fis);
-
-        JSONObject result = new JSONObject();
-        String checkStatus = setJsonResult(properties, result, "checkStatus");
-        setJsonResult(properties, result, "alreadySave");
-        setJsonResult(properties, result, "totalCount");
-
-        if (ZIP_STATUS.equals(checkStatus)) {
-            FileUtils.forceDelete(checkFile);
-        }
-        return result.toString();
-    }
-
-    private String setJsonResult(Properties properties, JSONObject result, String property) throws JSONException {
-        String checkStatus = properties.getProperty(property);
-        System.out.println(property + ":" + checkStatus);
-        result.put(property, checkStatus);
-        return checkStatus;
-    }
-
-    private String getRootPath(HttpServletRequest request) {
-        String currentUid = request.getParameter("currentUid");
-        System.out.println("currentUid:" + currentUid);
-        String saeTmpPath = SaeUserInfo.getSaeTmpPath();
-        System.out.println("saeTmpPath:" + saeTmpPath);
-        return saeTmpPath + File.separator + currentUid;
-    }
-
     private List<String> getUidList(HttpServletRequest request) {
         String uids = request.getParameter("uids");
         if (Strings.isNullOrEmpty(uids)) {

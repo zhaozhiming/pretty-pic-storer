@@ -31,8 +31,6 @@ $(document).ready(function () {
         });
     });
 
-    $("#errorMsg").hide();
-
     $("#saveBtn").click(function () {
         var ajaxData = {
             uids: $("#uids").val(),
@@ -70,41 +68,6 @@ $(document).ready(function () {
                 ]);
             });
     });
-
-    function checkProgress() {
-        $.ajax({
-            url: "/pretty-pic-storer/check",
-            data: {currentUid: $("#currentUid").val()},
-            type: "POST",
-            dataType: "text"
-        }).done(function (data) {
-                var result = jQuery.parseJSON(data);
-                var status = result.checkStatus;
-
-                if (status === "get") {
-                    $("#dialog").html("开始获取微博...");
-                } else if (status === "save") {
-                    var content = "获取微博完成，开始下载图片..." + "<br/>";
-                    content += "已下载: " + result.alreadySave;
-                    content += ", 总共: " + result.totalCount;
-                    $("#dialog").html(content);
-                }
-            }).fail(function () {
-                $("#dialog").html("出错了！");
-                $("#dialog").dialog("option", "buttons", [
-                    { text: "Ok", click: function () {
-                        $(this).dialog("close");
-                    } }
-                ]);
-            }).always(function (data) {
-                var result = jQuery.parseJSON(data);
-                var status = result.checkStatus;
-
-                if (status !== "zip") {
-                    setTimeout(checkProgress, 1000);
-                }
-            });
-    }
 
     $("#dialog").dialog({
         autoOpen: false,
