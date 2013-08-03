@@ -47,6 +47,9 @@ dependencies {
             "com.google.guava:guava:r09",
             "org.apache.ant:ant:1.9.2",
             "commons-httpclient:commons-httpclient:3.1",
+            "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
+            "org.hibernate:hibernate-entitymanager:3.6.10.Final",
+            "mysql:mysql-connector-java:5.1.25",
     )
     testCompile(
             "junit:junit:4.+"

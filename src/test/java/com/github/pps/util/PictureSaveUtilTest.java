@@ -30,7 +30,6 @@ public class PictureSaveUtilTest {
     private static final long UID2 = 1000002L;
     private static final String PICTURE_1 = "http://sae.sina.com.cn/static/image/index_service/level7.png";
     private static final String PICTURE_2 = "http://sae.sina.com.cn/static/image/index_service/safecheck.png";
-    private static final String PICTURE_3 = "http://img.t.sinajs.cn/t4/appstyle/open/images/common/transparent.gif";
     private static final String USER1_NAME = "-张三_";
     private static final String USER2_NAME = "-李四_";
     public static final String ZIP_NAME = "myzip.zip";

@@ -1,11 +1,13 @@
 package com.github.pps;
 
+import com.github.pps.dto.Task;
 import com.github.pps.util.PictureSaveUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.sina.sae.storage.SaeStorage;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,10 @@ import weibo4j.model.StatusWapper;
 import weibo4j.model.WeiboException;
 import weibo4j.util.WeiboConfig;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -81,12 +87,37 @@ public class PrettyPictureController {
         final String uids = request.getParameter("uids");
         final String token = request.getParameter("token");
         final String currentUid = request.getParameter("currentUid");
-        Thread thread = createSaveThread(uids, token, currentUid);
+
+        Task task = new Task(currentUid, "running", now().getMillis());
+        EntityManager entityManager = getEntityManager();
+        entityManager.persist(task);
+
+        System.out.println("taskid:" + task.getId());
+        Query query = entityManager.createQuery("select t from " + Task.class.getName() + " t");
+        List<Task> tasks = query.getResultList();
+
+        entityManagerClose(entityManager);
+
+        Thread thread = createSaveThread(uids, token, currentUid, task.getId());
         thread.start();
-        return resultJson("OK");
+        String resultJson = resultJson("OK", tasks);
+        System.out.println("resultJson:" + resultJson);
+        return resultJson;
     }
 
-    private Thread createSaveThread(final String uids, final String token, final String currentUid) {
+    private EntityManager getEntityManager() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("defaultPersistenceUnit");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        return entityManager;
+    }
+
+    private void entityManagerClose(EntityManager entityManager) {
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    private Thread createSaveThread(final String uids, final String token, final String currentUid, final Long taskId) {
         return new Thread(new Runnable() {
             @Override
             public void run() {
@@ -102,6 +133,18 @@ public class PrettyPictureController {
                     String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
                     byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
                     storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
+
+                    System.out.println("taskid:" + taskId);
+
+//                    EntityManager entityManager = getEntityManager();
+//
+//                    Task task = entityManager.find(Task.class, taskId);
+//                    System.out.println("task:" + task);
+//                    task.setStatus("done");
+//                    String url = storage.getUrl(DOMAIN_NAME, zipFileName);
+//                    task.setUrl(url);
+//
+//                    entityManagerClose(entityManager);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -109,9 +152,18 @@ public class PrettyPictureController {
         });
     }
 
-    private String resultJson(String message) throws JSONException {
+    private String resultJson(String message, List<Task> tasks) throws JSONException {
         JSONObject result = new JSONObject();
         result.put("message", message);
+
+        JSONArray tasksJson = new JSONArray();
+        for (Task task : tasks) {
+            JSONObject taskJson = new JSONObject();
+            taskJson.put("taskStatus", task.getStatus());
+            taskJson.put("zipFileUrl", task.getUrl());
+            tasksJson.put(taskJson);
+        }
+        result.put("task", tasksJson);
         return result.toString();
     }
 
