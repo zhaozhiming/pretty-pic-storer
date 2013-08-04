@@ -42,6 +42,10 @@ public class PrettyPictureController {
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
     private static final String DOMAIN_NAME = "mydomain";
+    private static final String TASK_STATUS_NOTHING = "nothing";
+    private static final String TASK_STATUS_DONE = "done";
+    private static final String TASK_STATUS_RUNNING = "running";
+    private static final String DEFAULT_PERSISTENCE_UNIT = "defaultPersistenceUnit";
 
     @Value("${appKey}")
     private String appKey;
@@ -89,25 +93,33 @@ public class PrettyPictureController {
         final String token = request.getParameter("token");
         final String currentUid = request.getParameter("currentUid");
 
-        Task task = new Task(currentUid, "running", now().getMillis());
         EntityManager entityManager = getEntityManager();
+        Task task = new Task(currentUid, TASK_STATUS_RUNNING, now().getMillis());
         entityManager.persist(task);
-
-        System.out.println("taskid:" + task.getId());
-        Query query = entityManager.createQuery("select t from " + Task.class.getName() + " t");
-        List<Task> tasks = query.getResultList();
-
         entityManagerClose(entityManager);
 
         Thread thread = createSaveThread(uids, token, currentUid, task.getId());
         thread.start();
-        String resultJson = resultJson("OK", tasks);
-        System.out.println("resultJson:" + resultJson);
-        return resultJson;
+
+        JSONObject result = new JSONObject();
+        result.put("message", "OK");
+        JSONArray tasksJson = findTasksBy(currentUid);
+        result.put("tasks", tasksJson);
+        return result.toString();
+    }
+
+    private JSONArray findTasksBy(String uid) throws JSONException {
+        EntityManager entityManager = getEntityManager();
+        Query query = entityManager.createQuery("select t from " + Task.class.getName() + " t where t.uid = ?")
+                .setParameter(1, uid);
+        List<Task> tasks = query.getResultList();
+        entityManagerClose(entityManager);
+
+        return getTasksJson(tasks);
     }
 
     private EntityManager getEntityManager() {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("defaultPersistenceUnit");
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory(DEFAULT_PERSISTENCE_UNIT);
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         return entityManager;
@@ -150,7 +162,7 @@ public class PrettyPictureController {
                 System.out.println("taskid:" + taskId);
                 Task task = entityManager.find(Task.class, taskId);
                 System.out.println("task:" + task);
-                task.setStatus("done");
+                task.setStatus(TASK_STATUS_DONE);
                 String url = storage.getUrl(DOMAIN_NAME, zipFileName);
                 task.setUrl(url);
 
@@ -163,27 +175,24 @@ public class PrettyPictureController {
                 System.out.println("taskid:" + taskId);
                 Task task = entityManager.find(Task.class, taskId);
                 System.out.println("task:" + task);
-                task.setStatus("nothing");
+                task.setStatus(TASK_STATUS_NOTHING);
 
                 entityManagerClose(entityManager);
             }
         });
     }
 
-    private String resultJson(String message, List<Task> tasks) throws JSONException {
-        JSONObject result = new JSONObject();
-        result.put("message", message);
-
+    private JSONArray getTasksJson(List<Task> tasks) throws JSONException {
         JSONArray tasksJson = new JSONArray();
         for (Task task : tasks) {
             JSONObject taskJson = new JSONObject();
+            taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT));
             taskJson.put("taskStatus", task.getStatus());
             taskJson.put("zipFileUrl", task.getUrl());
-            taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT));
             tasksJson.put(taskJson);
         }
-        result.put("task", tasksJson);
-        return result.toString();
+        System.out.println("tasksJson:" + tasksJson);
+        return tasksJson;
     }
 
     private List<String> getUidList(String uids) {

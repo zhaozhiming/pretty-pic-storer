@@ -64,6 +64,16 @@ $(document).ready(function () {
                     } }
                 ]);
 
+                var tblBody = "";
+                $.each(result.tasks, function() {
+                    var tblRow = "";
+                    $.each(this, function(k, v) {
+                        tblRow += "<td>"+v+"</td>";
+                    });
+                    tblBody += "<tr>"+tblRow+"</tr>";
+                });
+                $("#taskTable tbody").html(tblBody);
+
             }).fail(function () {
                 $("#dialog").html("出错了！");
                 $("#dialog").dialog("option", "buttons", [
