@@ -39,6 +39,7 @@
                         <input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
                         <input id="token" name="token" value="${token}" type="hidden"/>
                         <input id="saveUrl" name="saveUrl" value="<c:url value="/save" />" type="hidden"/>
+                        <input id="userTasksUrl" name="userTasksUrl" value="<c:url value="/tasks/${currentUid}" />" type="hidden"/>
                         <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
                         <input type="button" id="saveBtn" value="保存图片" class="btn-primary"/>
                     </div>
@@ -54,22 +55,12 @@
                 <thead>
                 <tr>
                     <th>序号</th>
-                    <th>创建时间</th>
                     <th>状态</th>
+                    <th>创建时间</th>
                     <th>下载地址</th>
                 </tr>
                 </thead>
                 <tbody>
-                <c:if test="${!empty tasks}">
-                    <c:forEach items="${tasks}" var="task" varStatus="status">
-                        <tr>
-                            <td>${status.count}</td>
-                            <td>${task.createdAt}</td>
-                            <td>${task.status}</td>
-                            <td>${task.url}</td>
-                        </tr>
-                    </c:forEach>
-                </c:if>
                 </tbody>
             </table>
         </div>

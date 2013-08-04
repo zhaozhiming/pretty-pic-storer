@@ -49,6 +49,15 @@ $(document).ready(function () {
         $("#taskTable tbody").html(tblBody);
     }
 
+    $.ajax({
+        url: $("#userTasksUrl").val(),
+        type: "GET",
+        dataType: "text"
+    }).done(function (data) {
+            var tasks = jQuery.parseJSON(data);
+            putTasksToTable(tasks);
+    });
+
     $("#saveBtn").click(function () {
         var ajaxData = {
             uids: $("#uids").val(),

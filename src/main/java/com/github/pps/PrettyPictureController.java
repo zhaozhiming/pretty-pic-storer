@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -60,11 +61,11 @@ public class PrettyPictureController {
     public String index(ModelMap model) throws Exception {
         System.out.println("start=================");
         model.addAttribute("appKey", appKey);
-        model.addAttribute("callBackUrl", callBackUrl + "/code");
+        model.addAttribute("callBackUrl", callBackUrl + "/main");
         return "index";
     }
 
-    @RequestMapping(value = "/code", method = RequestMethod.POST)
+    @RequestMapping(value = "/main", method = RequestMethod.POST)
     public String listFriends(HttpServletRequest request, ModelMap model) throws Exception {
         System.out.println("get user token start");
         String signedRequest = request.getParameter("signed_request");
@@ -81,9 +82,16 @@ public class PrettyPictureController {
         model.addAttribute("token", auth.access_token);
         model.addAttribute("appKey", appKey);
         model.addAttribute("currentUid", auth.user_id);
-        model.addAttribute("tasks", findTasksBy(auth.user_id));
         System.out.println("get user token finish");
         return "pretty-picture";
+    }
+
+    @RequestMapping(value = "/tasks/{uid}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String queryTasks(@PathVariable String uid) throws Exception {
+        List<Task> tasks = findTasksBy(uid);
+        return getTasksJson(tasks).toString();
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
