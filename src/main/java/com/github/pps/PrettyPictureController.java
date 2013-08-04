@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github.pps.util.PictureSaveUtil.FMT;
 import static org.joda.time.DateTime.now;
 
 @Controller
@@ -127,27 +128,44 @@ public class PrettyPictureController {
                     int totalStatusSize = totalStatuses.size();
                     System.out.println("totalStatuses size:" + totalStatusSize);
 
-                    if (totalStatusSize == 0) return;
+                    if (totalStatusSize == 0) {
+                        updateTaskNothing();
+                        return;
+                    }
 
                     SaeStorage storage = new SaeStorage();
                     String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
                     byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
                     storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
 
-                    System.out.println("taskid:" + taskId);
-
-//                    EntityManager entityManager = getEntityManager();
-//
-//                    Task task = entityManager.find(Task.class, taskId);
-//                    System.out.println("task:" + task);
-//                    task.setStatus("done");
-//                    String url = storage.getUrl(DOMAIN_NAME, zipFileName);
-//                    task.setUrl(url);
-//
-//                    entityManagerClose(entityManager);
+                    updateTaskDone(storage, zipFileName);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+            }
+
+            private void updateTaskDone(SaeStorage storage, String zipFileName) {
+                EntityManager entityManager = getEntityManager();
+
+                System.out.println("taskid:" + taskId);
+                Task task = entityManager.find(Task.class, taskId);
+                System.out.println("task:" + task);
+                task.setStatus("done");
+                String url = storage.getUrl(DOMAIN_NAME, zipFileName);
+                task.setUrl(url);
+
+                entityManagerClose(entityManager);
+            }
+
+            private void updateTaskNothing() {
+                EntityManager entityManager = getEntityManager();
+
+                System.out.println("taskid:" + taskId);
+                Task task = entityManager.find(Task.class, taskId);
+                System.out.println("task:" + task);
+                task.setStatus("nothing");
+
+                entityManagerClose(entityManager);
             }
         });
     }
@@ -161,6 +179,7 @@ public class PrettyPictureController {
             JSONObject taskJson = new JSONObject();
             taskJson.put("taskStatus", task.getStatus());
             taskJson.put("zipFileUrl", task.getUrl());
+            taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT));
             tasksJson.put(taskJson);
         }
         result.put("task", tasksJson);

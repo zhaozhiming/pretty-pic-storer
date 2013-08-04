@@ -49,4 +49,8 @@ public class Task {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
 }
