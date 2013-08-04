@@ -37,12 +37,39 @@ $(document).ready(function () {
         title: "结果"
     });
 
+    function createTr(key, value) {
+        var trContent = "";
+        if (key === "taskStatus") {
+            switch (value) {
+                case "running" :
+                    trContent = "处理中";
+                    break;
+                case "done" :
+                    trContent = "已完成";
+                    break;
+                case "nothing" :
+                    trContent = "无图片";
+                    break;
+            }
+        } else if (key === "zipFileUrl") {
+            if (value === "no") {
+                trContent = "无";
+            } else {
+                trContent = "<a href='" + value + "'>下载</a>"
+            }
+        } else {
+            trContent = value;
+        }
+        return trContent;
+    }
+
     function putTasksToTable(tasks) {
         var tblBody = "";
         $.each(tasks, function (index) {
-            var tblRow = "<td>" + index + 1 + "</td>";
+            var tblRow = "<td>" + (index + 1) + "</td>";
             $.each(this, function (k, v) {
-                tblRow += "<td>" + v + "</td>";
+                var trContent = createTr(k, v);
+                tblRow += "<td>" + trContent + "</td>";
             });
             tblBody += "<tr>" + tblRow + "</tr>";
         });

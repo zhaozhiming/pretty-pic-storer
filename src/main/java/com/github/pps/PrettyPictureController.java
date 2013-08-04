@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.sina.sae.storage.SaeStorage;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,12 +34,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.pps.util.PictureSaveUtil.FMT;
 import static org.joda.time.DateTime.now;
 
 @Controller
 public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
+    public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
@@ -120,7 +121,8 @@ public class PrettyPictureController {
 
     private List<Task> findTasksBy(String uid) throws JSONException {
         EntityManager entityManager = getEntityManager();
-        Query query = entityManager.createQuery("select t from " + Task.class.getName() + " t where t.uid = ?")
+        Query query = entityManager.createQuery(
+                "select t from " + Task.class.getName() + " t where t.uid = ? order by t.createdAt desc ")
                 .setParameter(1, uid);
         List<Task> tasks = query.getResultList();
         entityManagerClose(entityManager);
@@ -196,9 +198,9 @@ public class PrettyPictureController {
         JSONArray tasksJson = new JSONArray();
         for (Task task : tasks) {
             JSONObject taskJson = new JSONObject();
-            taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT));
+            taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT_SEC));
             taskJson.put("taskStatus", task.getStatus());
-            taskJson.put("zipFileUrl", task.getUrl());
+            taskJson.put("zipFileUrl", (task.getUrl() == null) ? "no" : task.getUrl() );
             tasksJson.put(taskJson);
         }
         System.out.println("tasksJson:" + tasksJson);
