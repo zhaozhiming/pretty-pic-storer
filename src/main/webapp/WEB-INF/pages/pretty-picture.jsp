@@ -60,6 +60,16 @@
                 </tr>
                 </thead>
                 <tbody>
+                <c:if test="${!empty tasks}">
+                    <c:forEach items="${tasks}" var="task" varStatus="status">
+                        <tr>
+                            <td>${status.count}</td>
+                            <td>${task.createdAt}</td>
+                            <td>${task.status}</td>
+                            <td>${task.url}</td>
+                        </tr>
+                    </c:forEach>
+                </c:if>
                 </tbody>
             </table>
         </div>

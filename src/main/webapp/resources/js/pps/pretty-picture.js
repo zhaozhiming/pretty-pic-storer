@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     function selectCallback(data) {
         if (data.length > 5) {
             $("#error").show().fadeOut(4000);
@@ -31,6 +30,25 @@ $(document).ready(function () {
         });
     });
 
+    $("#dialog").dialog({
+        autoOpen: false,
+        dialogClass: "no-close",
+        modal: "true",
+        title: "结果"
+    });
+
+    function putTasksToTable(tasks) {
+        var tblBody = "";
+        $.each(tasks, function (index) {
+            var tblRow = "<td>" + index + 1 + "</td>";
+            $.each(this, function (k, v) {
+                tblRow += "<td>" + v + "</td>";
+            });
+            tblBody += "<tr>" + tblRow + "</tr>";
+        });
+        $("#taskTable tbody").html(tblBody);
+    }
+
     $("#saveBtn").click(function () {
         var ajaxData = {
             uids: $("#uids").val(),
@@ -53,7 +71,7 @@ $(document).ready(function () {
                 var message = result.message;
                 var htmlContent;
 
-                if(message === "OK") {
+                if (message === "OK") {
                     htmlContent = "已开始为您保存图片，完成时将私信通知您";
                 }
 
@@ -64,16 +82,7 @@ $(document).ready(function () {
                     } }
                 ]);
 
-                var tblBody = "";
-                $.each(result.tasks, function() {
-                    var tblRow = "";
-                    $.each(this, function(k, v) {
-                        tblRow += "<td>"+v+"</td>";
-                    });
-                    tblBody += "<tr>"+tblRow+"</tr>";
-                });
-                $("#taskTable tbody").html(tblBody);
-
+                putTasksToTable(result.tasks);
             }).fail(function () {
                 $("#dialog").html("出错了！");
                 $("#dialog").dialog("option", "buttons", [
@@ -82,13 +91,6 @@ $(document).ready(function () {
                     } }
                 ]);
             });
-    });
-
-    $("#dialog").dialog({
-        autoOpen: false,
-        dialogClass: "no-close",
-        modal: "true",
-        title: "结果"
     });
 
 });

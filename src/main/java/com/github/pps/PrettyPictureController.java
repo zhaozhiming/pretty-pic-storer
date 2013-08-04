@@ -81,6 +81,7 @@ public class PrettyPictureController {
         model.addAttribute("token", auth.access_token);
         model.addAttribute("appKey", appKey);
         model.addAttribute("currentUid", auth.user_id);
+        model.addAttribute("tasks", findTasksBy(auth.user_id));
         System.out.println("get user token finish");
         return "pretty-picture";
     }
@@ -103,19 +104,20 @@ public class PrettyPictureController {
 
         JSONObject result = new JSONObject();
         result.put("message", "OK");
-        JSONArray tasksJson = findTasksBy(currentUid);
+        List<Task> tasks = findTasksBy(currentUid);
+        JSONArray tasksJson = getTasksJson(tasks);
         result.put("tasks", tasksJson);
         return result.toString();
     }
 
-    private JSONArray findTasksBy(String uid) throws JSONException {
+    private List<Task> findTasksBy(String uid) throws JSONException {
         EntityManager entityManager = getEntityManager();
         Query query = entityManager.createQuery("select t from " + Task.class.getName() + " t where t.uid = ?")
                 .setParameter(1, uid);
         List<Task> tasks = query.getResultList();
         entityManagerClose(entityManager);
 
-        return getTasksJson(tasks);
+        return tasks;
     }
 
     private EntityManager getEntityManager() {
