@@ -9,4 +9,4 @@ build/**
 out/**
 .gradle/**
 src/main/webapp/WEB-INF/config/app.properties
-
+src/main/resources/persistence.xml
