@@ -47,7 +47,8 @@ public class PrettyPictureController {
     private static final String TASK_STATUS_NOTHING = "nothing";
     private static final String TASK_STATUS_DONE = "done";
     private static final String TASK_STATUS_RUNNING = "running";
-    private static final String DEFAULT_PERSISTENCE_UNIT = "defaultPersistenceUnit";
+    private static final String MAIN_PERSISTENCE_UNIT = "mainPersistenceUnit";
+    private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
 
     @Value("${appKey}")
     private String appKey;
@@ -103,7 +104,7 @@ public class PrettyPictureController {
         final String token = request.getParameter("token");
         final String currentUid = request.getParameter("currentUid");
 
-        EntityManager entityManager = getEntityManager();
+        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
         Task task = new Task(currentUid, TASK_STATUS_RUNNING, now().getMillis());
         entityManager.persist(task);
         entityManagerClose(entityManager);
@@ -120,7 +121,7 @@ public class PrettyPictureController {
     }
 
     private List<Task> findTasksBy(String uid) throws JSONException {
-        EntityManager entityManager = getEntityManager();
+        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
         Query query = entityManager.createQuery(
                 "select t from " + Task.class.getName() + " t where t.uid = ? order by t.createdAt desc ")
                 .setParameter(1, uid);
@@ -130,8 +131,8 @@ public class PrettyPictureController {
         return tasks;
     }
 
-    private EntityManager getEntityManager() {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory(DEFAULT_PERSISTENCE_UNIT);
+    private EntityManager getEntityManager(String persistenceUnit) {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnit);
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         return entityManager;
@@ -169,7 +170,7 @@ public class PrettyPictureController {
             }
 
             private void updateTaskDone(SaeStorage storage, String zipFileName) {
-                EntityManager entityManager = getEntityManager();
+                EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
 
                 System.out.println("taskid:" + taskId);
                 Task task = entityManager.find(Task.class, taskId);
@@ -182,7 +183,7 @@ public class PrettyPictureController {
             }
 
             private void updateTaskNothing() {
-                EntityManager entityManager = getEntityManager();
+                EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
 
                 System.out.println("taskid:" + taskId);
                 Task task = entityManager.find(Task.class, taskId);
@@ -200,7 +201,7 @@ public class PrettyPictureController {
             JSONObject taskJson = new JSONObject();
             taskJson.put("createdAt", now().withMillis(task.getCreatedAt()).toString(FMT_SEC));
             taskJson.put("taskStatus", task.getStatus());
-            taskJson.put("zipFileUrl", (task.getUrl() == null) ? "no" : task.getUrl() );
+            taskJson.put("zipFileUrl", (task.getUrl() == null) ? "no" : task.getUrl());
             tasksJson.put(taskJson);
         }
         System.out.println("tasksJson:" + tasksJson);

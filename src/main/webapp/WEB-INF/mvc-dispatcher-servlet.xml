@@ -25,7 +25,7 @@
     <jpa:repositories base-package="com.github.pps"/>
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="defaultPersistenceUnit"/>
+        <property name="persistenceUnitName" value="mainPersistenceUnit"/>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

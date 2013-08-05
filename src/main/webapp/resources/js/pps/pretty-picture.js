@@ -136,7 +136,7 @@ $(document).ready(function () {
                 var htmlContent;
 
                 if (message === "OK") {
-                    htmlContent = "已开始为您保存图片，完成时将私信通知您";
+                    htmlContent = "已开始为您保存图片，请稍后查看任务";
                 }
 
                 $("#dialog").html(htmlContent);
