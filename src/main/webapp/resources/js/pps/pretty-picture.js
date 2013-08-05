@@ -37,30 +37,30 @@ $(document).ready(function () {
         title: "结果"
     });
 
-    function createTr(key, value) {
-        var trContent = "";
+    function createTd(key, value) {
+        var tdContent = "";
         if (key === "taskStatus") {
             switch (value) {
                 case "running" :
-                    trContent = "处理中";
+                    tdContent = "处理中";
                     break;
                 case "done" :
-                    trContent = "已完成";
+                    tdContent = "已完成";
                     break;
                 case "nothing" :
-                    trContent = "无图片";
+                    tdContent = "无图片";
                     break;
             }
         } else if (key === "zipFileUrl") {
             if (value === "no") {
-                trContent = "无";
+                tdContent = "无";
             } else {
-                trContent = "<a href='" + value + "'>下载</a>"
+                tdContent = "<a href='" + value + "'>下载</a>"
             }
         } else {
-            trContent = value;
+            tdContent = value;
         }
-        return trContent;
+        return tdContent;
     }
 
     function putTasksToTable(tasks) {
@@ -68,12 +68,40 @@ $(document).ready(function () {
         $.each(tasks, function (index) {
             var tblRow = "<td>" + (index + 1) + "</td>";
             $.each(this, function (k, v) {
-                var trContent = createTr(k, v);
+                var trContent = createTd(k, v);
                 tblRow += "<td>" + trContent + "</td>";
             });
             tblBody += "<tr>" + tblRow + "</tr>";
         });
         $("#taskTable tbody").html(tblBody);
+        createPagination();
+    }
+
+    function createPagination() {
+        if($("#pages").length) $("#pages").remove();
+
+        var rows = $('#taskTable').find('tbody tr').length;
+        var rowNumPerPage = 5;
+        var pagesNo = Math.ceil(rows / rowNumPerPage);
+        var pageNumbers = $('<div id="pages" class="pagination"></div>');
+        var pageUl = $('<ul></ul>');
+        pageUl.appendTo(pageNumbers);
+        for (i = 0; i < pagesNo; i++) {
+            $('<li><a class="page" href="#">' + (i + 1) + '</a></li>').appendTo(pageUl);
+        }
+        pageNumbers.insertAfter('#taskTable');
+        $('#taskTable').find('tbody tr').hide();
+        var tr = $('#taskTable tbody tr');
+        for (var i = 0; i <= rowNumPerPage - 1; i++) {
+            $(tr[i]).show();
+        }
+
+        $('.page').click(function () {
+            $('#taskTable').find('tbody tr').hide();
+            for (i = ($(this).text() - 1) * rowNumPerPage; i <= $(this).text() * rowNumPerPage - 1; i++) {
+                $(tr[i]).show();
+            }
+        });
     }
 
     $.ajax({

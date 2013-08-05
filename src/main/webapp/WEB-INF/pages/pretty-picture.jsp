@@ -17,7 +17,6 @@
             charset="utf-8"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-1.10.2.min.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
-    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery.fileDownload.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 </head>
 
@@ -51,7 +50,7 @@
             </div>
 
             <h3>我的任务</h3>
-            <table id="taskTable" class="table table-bordered table-striped">
+            <table id="taskTable" class="table table-bordered table-striped table-hover">
                 <thead>
                 <tr>
                     <th>序号</th>
