@@ -2,7 +2,7 @@ package com.github.pps.dto;
 
 import javax.persistence.*;
 
-@Entity(name = "takes")
+@Entity(name = "tasks")
 public class Task {
 
     @Id
