@@ -7,6 +7,8 @@
         <setting name="provider-name" value="" />
         <datasource-mapping>
           <factory-entry name="defaultPersistenceUnit" />
+          <factory-entry name="mainPersistenceUnit" />
+          <factory-entry name="queryPersistenceUnit" />
         </datasource-mapping>
         <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
       </configuration>

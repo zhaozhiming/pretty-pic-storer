@@ -21,10 +21,18 @@ public class Task {
     @Basic
     private Long createdAt;
 
-    public Task(String uid, String status, Long createdAt) {
+    @Basic
+    private String uids;
+
+    @Basic
+    private String token;
+
+    public Task(String uid, String status, Long createdAt, String uids, String token) {
         this.uid = uid;
         this.status = status;
         this.createdAt = createdAt;
+        this.uids = uids;
+        this.token = token;
     }
 
     public Task() {
@@ -52,5 +60,17 @@ public class Task {
 
     public Long getCreatedAt() {
         return createdAt;
+    }
+
+    public String getUids() {
+        return uids;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }

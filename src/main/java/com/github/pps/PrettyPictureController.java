@@ -44,9 +44,10 @@ public class PrettyPictureController {
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
     private static final String DOMAIN_NAME = "mydomain";
+    private static final String TASK_STATUS_NEW = "new";
+    private static final String TASK_STATUS_RUNNING = "running";
     private static final String TASK_STATUS_NOTHING = "nothing";
     private static final String TASK_STATUS_DONE = "done";
-    private static final String TASK_STATUS_RUNNING = "running";
     private static final String MAIN_PERSISTENCE_UNIT = "mainPersistenceUnit";
     private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
 
@@ -88,6 +89,76 @@ public class PrettyPictureController {
         return "pretty-picture";
     }
 
+    @RequestMapping(value = "/task/run", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String runTask() throws Exception {
+        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
+        Query query = entityManager.createQuery(
+                "select t from " + Task.class.getName() + " t where t.status = ? order by t.createdAt desc")
+                .setParameter(1, TASK_STATUS_NEW).setMaxResults(1);
+        Task task = (Task) query.getSingleResult();
+        entityManagerClose(entityManager);
+
+        if (task == null) return new JSONObject().toString();
+
+        String uids = task.getUids();
+        String token = task.getToken();
+        Object currentUid = task.getUid();
+        Long taskId = task.getId();
+        updateTaskRunning(taskId);
+
+        List<String> uidList = getUidList(uids);
+        List<Status> totalStatuses = getTotalStatuses(uidList, token);
+        int totalStatusSize = totalStatuses.size();
+        System.out.println("totalStatuses size:" + totalStatusSize);
+
+        if (totalStatusSize == 0) {
+            updateTaskNothing(taskId);
+            return new JSONObject().toString();
+        }
+
+        SaeStorage storage = new SaeStorage();
+        String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
+        storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
+
+        updateTaskDone(storage, zipFileName, taskId);
+        return new JSONObject().toString();
+    }
+
+    private void updateTaskDone(SaeStorage storage, String zipFileName, Long taskId) {
+        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
+
+        System.out.println("taskid:" + taskId);
+        Task task = entityManager.find(Task.class, taskId);
+        System.out.println("task:" + task);
+        task.setStatus(TASK_STATUS_DONE);
+        String url = storage.getUrl(DOMAIN_NAME, zipFileName);
+        task.setUrl(url);
+
+        entityManagerClose(entityManager);
+    }
+
+    private void updateTaskRunning(Long taskId) {
+        updateTaskStatus(taskId, TASK_STATUS_RUNNING);
+    }
+
+    private void updateTaskNothing(Long taskId) {
+        updateTaskStatus(taskId, TASK_STATUS_NOTHING);
+    }
+
+    private void updateTaskStatus(Long taskId, String status) {
+        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
+
+        System.out.println("taskid:" + taskId);
+        Task task = entityManager.find(Task.class, taskId);
+        System.out.println("task:" + task);
+        task.setStatus(status);
+
+        entityManagerClose(entityManager);
+    }
+
     @RequestMapping(value = "/tasks/{uid}", method = RequestMethod.GET)
     public
     @ResponseBody
@@ -96,21 +167,18 @@ public class PrettyPictureController {
         return getTasksJson(tasks).toString();
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/task/create", method = RequestMethod.POST)
     public
     @ResponseBody
-    String savePictures(HttpServletRequest request) throws Exception {
+    String createTask(HttpServletRequest request) throws Exception {
         final String uids = request.getParameter("uids");
         final String token = request.getParameter("token");
         final String currentUid = request.getParameter("currentUid");
 
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-        Task task = new Task(currentUid, TASK_STATUS_RUNNING, now().getMillis());
+        Task task = new Task(currentUid, TASK_STATUS_NEW, now().getMillis(), uids, token);
         entityManager.persist(task);
         entityManagerClose(entityManager);
-
-        Thread thread = createSaveThread(uids, token, currentUid, task.getId());
-        thread.start();
 
         JSONObject result = new JSONObject();
         result.put("message", "OK");

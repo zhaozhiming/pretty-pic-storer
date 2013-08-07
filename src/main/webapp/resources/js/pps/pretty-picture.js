@@ -41,6 +41,9 @@ $(document).ready(function () {
         var tdContent = "";
         if (key === "taskStatus") {
             switch (value) {
+                case "new" :
+                    tdContent = "新建";
+                    break;
                 case "running" :
                     tdContent = "处理中";
                     break;
@@ -104,14 +107,19 @@ $(document).ready(function () {
         });
     }
 
-    $.ajax({
-        url: $("#userTasksUrl").val(),
-        type: "GET",
-        dataType: "text"
-    }).done(function (data) {
-            var tasks = jQuery.parseJSON(data);
-            putTasksToTable(tasks);
-    });
+    function queryUserTasks() {
+        $.ajax({
+            url: $("#userTasksUrl").val(),
+            type: "GET",
+            dataType: "text"
+        }).done(function (data) {
+                var tasks = jQuery.parseJSON(data);
+                putTasksToTable(tasks);
+                setTimeout(queryUserTasks, 2000);
+        });
+    }
+
+    queryUserTasks();
 
     $("#saveBtn").click(function () {
         var ajaxData = {
@@ -146,7 +154,6 @@ $(document).ready(function () {
                     } }
                 ]);
 
-                putTasksToTable(result.tasks);
             }).fail(function () {
                 $("#dialog").html("出错了！");
                 $("#dialog").dialog("option", "buttons", [
