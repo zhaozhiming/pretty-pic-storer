@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $("#error").hide();
+
     function selectCallback(data) {
         if (data.length > 5) {
             $("#error").show().fadeOut(4000);
@@ -42,26 +44,26 @@ $(document).ready(function () {
         if (key === "taskStatus") {
             switch (value) {
                 case "new" :
-                    tdContent = "新建";
+                    tdContent = "<tr class='error'>新建";
                     break;
                 case "running" :
-                    tdContent = "处理中";
+                    tdContent = "<tr class='warning'>处理中";
                     break;
                 case "done" :
-                    tdContent = "已完成";
+                    tdContent = "<tr class='success'>已完成";
                     break;
                 case "nothing" :
-                    tdContent = "无图片";
+                    tdContent = "<tr class='info'>无图片";
                     break;
             }
         } else if (key === "zipFileUrl") {
             if (value === "no") {
-                tdContent = "无";
+                tdContent = "<tr>无";
             } else {
-                tdContent = "<a href='" + value + "'>下载</a>"
+                tdContent = "<tr><a href='" + value + "'>下载</a>"
             }
         } else {
-            tdContent = value;
+            tdContent = "<tr>" + value;
         }
         return tdContent;
     }
@@ -74,7 +76,7 @@ $(document).ready(function () {
                 var trContent = createTd(k, v);
                 tblRow += "<td>" + trContent + "</td>";
             });
-            tblBody += "<tr>" + tblRow + "</tr>";
+            tblBody += tblRow + "</tr>";
         });
         $("#taskTable tbody").html(tblBody);
         createPagination();
@@ -115,7 +117,7 @@ $(document).ready(function () {
         }).done(function (data) {
                 var tasks = jQuery.parseJSON(data);
                 putTasksToTable(tasks);
-                setTimeout(queryUserTasks, 2000);
+                setTimeout(queryUserTasks, 3000);
         });
     }
 
