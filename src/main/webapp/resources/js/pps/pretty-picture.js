@@ -39,43 +39,50 @@ $(document).ready(function () {
         title: "结果"
     });
 
-    function createTd(key, value) {
-        var tdContent = "";
-        if (key === "taskStatus") {
-            switch (value) {
-                case "new" :
-                    tdContent = "<tr class='error'>新建";
-                    break;
-                case "running" :
-                    tdContent = "<tr class='warning'>处理中";
-                    break;
-                case "done" :
-                    tdContent = "<tr class='success'>已完成";
-                    break;
-                case "nothing" :
-                    tdContent = "<tr class='info'>无图片";
-                    break;
-            }
-        } else if (key === "zipFileUrl") {
-            if (value === "no") {
-                tdContent = "<tr>无";
-            } else {
-                tdContent = "<tr><a href='" + value + "'>下载</a>"
-            }
+    function getUrlTd(zipFileUrl) {
+        var urlTd = "";
+        if (zipFileUrl === "no") {
+            urlTd = "无";
         } else {
-            tdContent = "<tr>" + value;
+            urlTd = zipFileUrl;
         }
-        return tdContent;
+        return urlTd;
+    }
+
+    function dealWithTaskStatus(taskStatus) {
+        var tblRow = "";
+        var statusTd = "";
+        switch (taskStatus) {
+            case "new":
+                tblRow += "<tr class='info'>"
+                statusTd = "新建";
+                break;
+            case "running":
+                tblRow += "<tr class='warning'>"
+                statusTd = "处理中";
+                break;
+            case "nothing":
+                tblRow += "<tr class='success'>"
+                statusTd = "无图片";
+                break;
+            case "done":
+                tblRow += "<tr class='success'>"
+                statusTd = "完成";
+                break;
+        }
+        return {statudTd: statusTd, tblRow: tblRow};
     }
 
     function putTasksToTable(tasks) {
         var tblBody = "";
         $.each(tasks, function (index) {
-            var tblRow = "<td>" + (index + 1) + "</td>";
-            $.each(this, function (k, v) {
-                var trContent = createTd(k, v);
-                tblRow += "<td>" + trContent + "</td>";
-            });
+            var tblRow = "";
+            var result = dealWithTaskStatus.call(this.taskStatus);
+            tblRow += result.tblRow;
+            tblRow += "<td>" + (index + 1) + "</td>";
+            tblRow += "<td>" + result.statudTd + "</td>";
+            tblRow += "<td>" + this.createdAt + "</td>";
+            tblRow += "<td>" + getUrlTd(this.zipFileUrl) + "</td>";
             tblBody += tblRow + "</tr>";
         });
         $("#taskTable tbody").html(tblBody);

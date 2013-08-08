@@ -53,7 +53,7 @@
             <table id="taskTable" class="table table-bordered table-striped table-hover">
                 <thead>
                 <tr>
-                    <th>序号</th>
+                    <th>#</th>
                     <th>状态</th>
                     <th>创建时间</th>
                     <th>下载地址</th>

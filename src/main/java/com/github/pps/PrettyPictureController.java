@@ -211,58 +211,6 @@ public class PrettyPictureController {
         entityManager.close();
     }
 
-    private Thread createSaveThread(final String uids, final String token, final String currentUid, final Long taskId) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    List<String> uidList = getUidList(uids);
-                    List<Status> totalStatuses = getTotalStatuses(uidList, token);
-                    int totalStatusSize = totalStatuses.size();
-                    System.out.println("totalStatuses size:" + totalStatusSize);
-
-                    if (totalStatusSize == 0) {
-                        updateTaskNothing();
-                        return;
-                    }
-
-                    SaeStorage storage = new SaeStorage();
-                    String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
-                    byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
-                    storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
-
-                    updateTaskDone(storage, zipFileName);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            private void updateTaskDone(SaeStorage storage, String zipFileName) {
-                EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-
-                System.out.println("taskid:" + taskId);
-                Task task = entityManager.find(Task.class, taskId);
-                System.out.println("task:" + task);
-                task.setStatus(TASK_STATUS_DONE);
-                String url = storage.getUrl(DOMAIN_NAME, zipFileName);
-                task.setUrl(url);
-
-                entityManagerClose(entityManager);
-            }
-
-            private void updateTaskNothing() {
-                EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-
-                System.out.println("taskid:" + taskId);
-                Task task = entityManager.find(Task.class, taskId);
-                System.out.println("task:" + task);
-                task.setStatus(TASK_STATUS_NOTHING);
-
-                entityManagerClose(entityManager);
-            }
-        });
-    }
-
     private JSONArray getTasksJson(List<Task> tasks) throws JSONException {
         JSONArray tasksJson = new JSONArray();
         for (Task task : tasks) {
