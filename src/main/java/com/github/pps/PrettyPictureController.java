@@ -31,14 +31,15 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 
 @Controller
 public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
+    private static final DateTime YESTERDAYA = DateTime.now().minusDays(1);
     public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
@@ -93,13 +94,7 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String runTask() throws Exception {
-        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
-        Query query = entityManager.createQuery(
-                "select t from " + Task.class.getName() + " t where t.status = ? order by t.createdAt desc")
-                .setParameter(1, TASK_STATUS_NEW).setMaxResults(1);
-        Task task = (Task) query.getSingleResult();
-        entityManagerClose(entityManager);
-
+        Task task = findOneNewTask();
         if (task == null) return new JSONObject().toString();
 
         String uids = task.getUids();
@@ -125,6 +120,53 @@ public class PrettyPictureController {
 
         updateTaskDone(storage, zipFileName, taskId);
         return new JSONObject().toString();
+    }
+
+    private Task findOneNewTask() {
+        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
+        Query query = entityManager.createQuery(
+                "select t from " + Task.class.getName() + " t where t.status = ? order by t.createdAt desc")
+                .setParameter(1, TASK_STATUS_NEW).setMaxResults(1);
+        Task task = (Task) query.getSingleResult();
+        entityManagerClose(entityManager);
+        return task;
+    }
+
+    @RequestMapping(value = "/tasks/delete", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String deleteTasks() throws Exception {
+        List<Task> tasks = queryFinishedTasks();
+        if (tasks == null || tasks.isEmpty()) return new JSONObject().toString();
+
+        for (Task task : tasks) {
+            if (TASK_STATUS_DONE.equals(task.getStatus())) {
+                SaeStorage saeStorage = new SaeStorage();
+                String url = task.getUrl();
+                String fileName = url.substring(url.lastIndexOf("/") + 1);
+                saeStorage.delete(DOMAIN_NAME, fileName);
+            }
+            deleteTask(task);
+        }
+        return new JSONObject().toString();
+    }
+
+    private void deleteTask(Task task) {
+        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
+        entityManager.remove(task);
+        entityManagerClose(entityManager);
+    }
+
+    private List<Task> queryFinishedTasks() {
+        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
+        Query query = entityManager.createQuery(
+                "select t from " + Task.class.getName() +
+                        " t where t.status in ? and t.createdAt < ?")
+                .setParameter(1, asList(TASK_STATUS_DONE, TASK_STATUS_NOTHING))
+                .setParameter(2, YESTERDAYA.getMillis());
+        List<Task> tasks = query.getResultList();
+        entityManagerClose(entityManager);
+        return tasks;
     }
 
     private void updateTaskDone(SaeStorage storage, String zipFileName, Long taskId) {
@@ -231,7 +273,7 @@ public class PrettyPictureController {
         System.out.println("uids:" + uids);
 
         String[] uidArray = uids.split(";");
-        List<String> uidList = Arrays.asList(uidArray);
+        List<String> uidList = asList(uidArray);
         if (uidList.size() > MAX_UID_SIZE) {
             throw new RuntimeException("uid size must be <= 5");
         }

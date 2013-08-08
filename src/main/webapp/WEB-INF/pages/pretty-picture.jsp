@@ -29,7 +29,7 @@
                     <legend><h3>美图微存</h3></legend>
                     <div class="alert alert-info">
                         美图微存可以选择好友获取<strong class="text-error">今日</strong>的微博图片，但注意好友数量不能超过<strong
-                            class="text-error">5</strong>个。
+                            class="text-error">5</strong>个
                     </div>
 
                     <div class="controls">
@@ -50,6 +50,9 @@
             </div>
 
             <h3>我的任务</h3>
+            <div class="alert alert-info">
+                任务完成后请及时下载，任务超过<strong class="text-error">1天</strong>将被删除
+            </div>
             <table id="taskTable" class="table table-bordered table-striped table-hover">
                 <thead>
                 <tr>

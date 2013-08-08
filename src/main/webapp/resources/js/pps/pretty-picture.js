@@ -44,7 +44,7 @@ $(document).ready(function () {
         if (zipFileUrl === "no") {
             urlTd = "无";
         } else {
-            urlTd = zipFileUrl;
+            urlTd = "<a href=" + zipFileUrl + ">下载</a>";
         }
         return urlTd;
     }
@@ -77,7 +77,7 @@ $(document).ready(function () {
         var tblBody = "";
         $.each(tasks, function (index) {
             var tblRow = "";
-            var result = dealWithTaskStatus.call(this.taskStatus);
+            var result = dealWithTaskStatus(this.taskStatus);
             tblRow += result.tblRow;
             tblRow += "<td>" + (index + 1) + "</td>";
             tblRow += "<td>" + result.statudTd + "</td>";
