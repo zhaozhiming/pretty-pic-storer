@@ -8,14 +8,13 @@
 <head>
     <title>pretty picture storer</title>
 
-    <link href="<c:url value="/resources/css/bootstrap/bootstrap.css" />" rel="stylesheet">
-    <link href="<c:url value="/resources/css/bootstrap/bootstrap-responsive.css" />" rel="stylesheet">
+    <link href="http://cdn.staticfile.org/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="<c:url value="/resources/css/jquery/jquery-ui.css" />" rel="stylesheet">
     <link href="<c:url value="/resources/css/pps/pretty-picture.css" />" rel="stylesheet">
 
     <script type="text/javascript" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=${appKey}"
             charset="utf-8"></script>
-    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-1.10.2.min.js" />"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 </head>
