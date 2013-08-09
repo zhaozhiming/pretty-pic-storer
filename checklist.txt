@@ -4,7 +4,7 @@
 4.use advance friends group interface replace time line interface;
 5.use log4j to log;
 6.zip the image files to a zip file and download this file; --clean
-7.use sae storer to store zip file; --clean
-8.use mysql to add task table;
+7.use sae storage to store zip file; --clean
+8.use mysql to add task table; --clean
 9.when picture name is same, must skip this picture; --clean
-10.use cron to delete table data;
+10.use cron to delete table data; --clean
