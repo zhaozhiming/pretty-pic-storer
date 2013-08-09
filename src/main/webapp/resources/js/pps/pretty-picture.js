@@ -32,19 +32,10 @@ $(document).ready(function () {
         });
     });
 
-    function getUrlTd(zipFileUrl) {
-        var urlTd = "";
-        if (zipFileUrl === "no") {
-            urlTd = "无";
-        } else {
-            urlTd = "<a href=" + zipFileUrl + ">下载</a>";
-        }
-        return urlTd;
-    }
-
-    function dealWithTaskStatus(taskStatus) {
+    function dealWithTaskStatus(taskStatus, zipFileUrl) {
         var tblRow = "";
         var statusTd = "";
+        var urlTd = "";
         switch (taskStatus) {
             case "new":
                 tblRow += "<tr class='info'>"
@@ -56,26 +47,28 @@ $(document).ready(function () {
                 break;
             case "nothing":
                 tblRow += "<tr class='success'>"
-                statusTd = "无图片";
+                statusTd = "完成";
+                urlTd = "没有搜索到图片可以下载";
                 break;
             case "done":
                 tblRow += "<tr class='success'>"
                 statusTd = "完成";
+                urlTd = "<a href=" + zipFileUrl + ">下载</a>";
                 break;
         }
-        return {statudTd: statusTd, tblRow: tblRow};
+        return {statudTd: statusTd, tblRow: tblRow, urlTd: urlTd};
     }
 
     function putTasksToTable(tasks) {
         var tblBody = "";
         $.each(tasks, function (index) {
             var tblRow = "";
-            var result = dealWithTaskStatus(this.taskStatus);
+            var result = dealWithTaskStatus(this.taskStatus, this.zipFileUrl);
             tblRow += result.tblRow;
             tblRow += "<td>" + (index + 1) + "</td>";
             tblRow += "<td>" + result.statudTd + "</td>";
             tblRow += "<td>" + this.createdAt + "</td>";
-            tblRow += "<td>" + getUrlTd(this.zipFileUrl) + "</td>";
+            tblRow += "<td>" + result.urlTd + "</td>";
             tblBody += tblRow + "</tr>";
         });
         $("#taskTable tbody").html(tblBody);

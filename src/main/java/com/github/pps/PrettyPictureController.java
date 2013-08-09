@@ -28,6 +28,7 @@ import weibo4j.model.WeiboException;
 import weibo4j.util.WeiboConfig;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 import static com.github.pps.repo.TaskRepository.TASK_STATUS_DONE;
@@ -88,14 +89,11 @@ public class PrettyPictureController {
         Task task = TaskRepository.getInstance().findOneNewTask();
         if (task == null) return new JSONObject().toString();
 
-        String uids = task.getUids();
-        String token = task.getToken();
-        Object currentUid = task.getUid();
         Long taskId = task.getId();
         TaskRepository.getInstance().updateTaskRunning(taskId);
 
-        List<String> uidList = getUidList(uids);
-        List<Status> totalStatuses = getTotalStatuses(uidList, token);
+        List<String> uidList = getUidList(task.getUids());
+        List<Status> totalStatuses = getTotalStatuses(uidList, task.getToken());
         int totalStatusSize = totalStatuses.size();
         System.out.println("totalStatuses size:" + totalStatusSize);
 
@@ -104,11 +102,7 @@ public class PrettyPictureController {
             return new JSONObject().toString();
         }
 
-        SaeStorage storage = new SaeStorage();
-        String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
-        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
-        storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
-        String url = storage.getUrl(PrettyPictureController.DOMAIN_NAME, zipFileName);
+        String url = putZipToStorage(task, totalStatuses);
         TaskRepository.getInstance().updateTaskDone(url, taskId);
         return new JSONObject().toString();
     }
@@ -121,6 +115,7 @@ public class PrettyPictureController {
         if (tasks == null || tasks.isEmpty()) return new JSONObject().toString();
 
         for (Task task : tasks) {
+
             if (TASK_STATUS_DONE.equals(task.getStatus())) {
                 SaeStorage saeStorage = new SaeStorage();
                 String url = task.getUrl();
@@ -151,6 +146,14 @@ public class PrettyPictureController {
     @RequestMapping(value = "/auth", method = RequestMethod.GET)
     public String authentication() throws Exception {
         return "auth";
+    }
+
+    private String putZipToStorage(Task task, List<Status> totalStatuses) throws IOException {
+        SaeStorage storage = new SaeStorage();
+        String zipFileName = task.getUid() + "-" + now().getMillis() + ".zip";
+        byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
+        storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
+        return storage.getUrl(PrettyPictureController.DOMAIN_NAME, zipFileName);
     }
 
     private JSONArray getTasksJson(List<Task> tasks) throws JSONException {
