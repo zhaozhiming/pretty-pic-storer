@@ -9,13 +9,12 @@
     <title>pretty picture storer</title>
 
     <link href="http://cdn.staticfile.org/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<c:url value="/resources/css/jquery/jquery-ui.css" />" rel="stylesheet">
-    <link href="<c:url value="/resources/css/pps/pretty-picture.css" />" rel="stylesheet">
+    <link href="http://cdn.staticfile.org/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet">
 
     <script type="text/javascript" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=${appKey}"
             charset="utf-8"></script>
     <script type="text/javascript" src="http://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
-    <script type="text/javascript" src="<c:url value="/resources/js/jquery/jquery-ui.js" />"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/pps/pretty-picture.js" />"></script>
 </head>
 
@@ -44,7 +43,6 @@
                     <div id="error" class="alert alert-error">
                         好友数量不能超过5个
                     </div>
-
                 </fieldset>
             </div>
 
@@ -67,7 +65,14 @@
         </div>
     </div>
 
-    <div id="dialog" title="Basic dialog">
+    <div id="dialogModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="dialogModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <h3 id="dialogModalLabel">保存图片</h3>
+        </div>
+        <div id="dialogModalBody" class="modal-body">
+        </div>
+        <div id="dialogModalFooter" class="modal-footer">
+        </div>
     </div>
 
 </body>

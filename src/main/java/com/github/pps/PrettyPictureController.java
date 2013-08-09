@@ -1,6 +1,7 @@
 package com.github.pps;
 
 import com.github.pps.dto.Task;
+import com.github.pps.repo.TaskRepository;
 import com.github.pps.util.PictureSaveUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -26,31 +27,21 @@ import weibo4j.model.StatusWapper;
 import weibo4j.model.WeiboException;
 import weibo4j.util.WeiboConfig;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static com.github.pps.repo.TaskRepository.TASK_STATUS_DONE;
 import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 
 @Controller
 public class PrettyPictureController {
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
-    private static final DateTime YESTERDAYA = DateTime.now().minusDays(1);
     public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int MAX_COUNT = 100;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
-    private static final String DOMAIN_NAME = "mydomain";
-    private static final String TASK_STATUS_NEW = "new";
-    private static final String TASK_STATUS_RUNNING = "running";
-    private static final String TASK_STATUS_NOTHING = "nothing";
-    private static final String TASK_STATUS_DONE = "done";
-    private static final String MAIN_PERSISTENCE_UNIT = "mainPersistenceUnit";
-    private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
+    public static final String DOMAIN_NAME = "mydomain";
 
     @Value("${appKey}")
     private String appKey;
@@ -94,14 +85,14 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String runTask() throws Exception {
-        Task task = findOneNewTask();
+        Task task = TaskRepository.getInstance().findOneNewTask();
         if (task == null) return new JSONObject().toString();
 
         String uids = task.getUids();
         String token = task.getToken();
         Object currentUid = task.getUid();
         Long taskId = task.getId();
-        updateTaskRunning(taskId);
+        TaskRepository.getInstance().updateTaskRunning(taskId);
 
         List<String> uidList = getUidList(uids);
         List<Status> totalStatuses = getTotalStatuses(uidList, token);
@@ -109,7 +100,7 @@ public class PrettyPictureController {
         System.out.println("totalStatuses size:" + totalStatusSize);
 
         if (totalStatusSize == 0) {
-            updateTaskNothing(taskId);
+            TaskRepository.getInstance().updateTaskNothing(taskId);
             return new JSONObject().toString();
         }
 
@@ -117,26 +108,16 @@ public class PrettyPictureController {
         String zipFileName = currentUid + "-" + now().getMillis() + ".zip";
         byte[] zipFileBytes = PictureSaveUtil.getZipFileBytes(totalStatuses);
         storage.write(DOMAIN_NAME, zipFileName, zipFileBytes);
-
-        updateTaskDone(storage, zipFileName, taskId);
+        String url = storage.getUrl(PrettyPictureController.DOMAIN_NAME, zipFileName);
+        TaskRepository.getInstance().updateTaskDone(url, taskId);
         return new JSONObject().toString();
-    }
-
-    private Task findOneNewTask() {
-        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
-        Query query = entityManager.createQuery(
-                "select t from " + Task.class.getName() + " t where t.status = ? order by t.createdAt desc")
-                .setParameter(1, TASK_STATUS_NEW).setMaxResults(1);
-        Task task = (Task) query.getSingleResult();
-        entityManagerClose(entityManager);
-        return task;
     }
 
     @RequestMapping(value = "/tasks/delete", method = RequestMethod.GET)
     public
     @ResponseBody
     String deleteTasks() throws Exception {
-        List<Task> tasks = queryFinishedTasks();
+        List<Task> tasks = TaskRepository.getInstance().queryFinishedTasks();
         if (tasks == null || tasks.isEmpty()) return new JSONObject().toString();
 
         for (Task task : tasks) {
@@ -146,66 +127,16 @@ public class PrettyPictureController {
                 String fileName = url.substring(url.lastIndexOf("/") + 1);
                 saeStorage.delete(DOMAIN_NAME, fileName);
             }
-            deleteTask(task);
+            TaskRepository.getInstance().deleteTask(task);
         }
         return new JSONObject().toString();
-    }
-
-    private void deleteTask(Task task) {
-        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-        entityManager.remove(task);
-        entityManagerClose(entityManager);
-    }
-
-    private List<Task> queryFinishedTasks() {
-        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
-        Query query = entityManager.createQuery(
-                "select t from " + Task.class.getName() +
-                        " t where t.status in ? and t.createdAt < ?")
-                .setParameter(1, asList(TASK_STATUS_DONE, TASK_STATUS_NOTHING))
-                .setParameter(2, YESTERDAYA.getMillis());
-        List<Task> tasks = query.getResultList();
-        entityManagerClose(entityManager);
-        return tasks;
-    }
-
-    private void updateTaskDone(SaeStorage storage, String zipFileName, Long taskId) {
-        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-
-        System.out.println("taskid:" + taskId);
-        Task task = entityManager.find(Task.class, taskId);
-        System.out.println("task:" + task);
-        task.setStatus(TASK_STATUS_DONE);
-        String url = storage.getUrl(DOMAIN_NAME, zipFileName);
-        task.setUrl(url);
-
-        entityManagerClose(entityManager);
-    }
-
-    private void updateTaskRunning(Long taskId) {
-        updateTaskStatus(taskId, TASK_STATUS_RUNNING);
-    }
-
-    private void updateTaskNothing(Long taskId) {
-        updateTaskStatus(taskId, TASK_STATUS_NOTHING);
-    }
-
-    private void updateTaskStatus(Long taskId, String status) {
-        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-
-        System.out.println("taskid:" + taskId);
-        Task task = entityManager.find(Task.class, taskId);
-        System.out.println("task:" + task);
-        task.setStatus(status);
-
-        entityManagerClose(entityManager);
     }
 
     @RequestMapping(value = "/tasks/{uid}", method = RequestMethod.GET)
     public
     @ResponseBody
     String queryTasks(@PathVariable String uid) throws Exception {
-        List<Task> tasks = findTasksBy(uid);
+        List<Task> tasks = TaskRepository.getInstance().findTasksBy(uid);
         return getTasksJson(tasks).toString();
     }
 
@@ -213,44 +144,13 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String createTask(HttpServletRequest request) throws Exception {
-        final String uids = request.getParameter("uids");
-        final String token = request.getParameter("token");
-        final String currentUid = request.getParameter("currentUid");
-
-        EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-        Task task = new Task(currentUid, TASK_STATUS_NEW, now().getMillis(), uids, token);
-        entityManager.persist(task);
-        entityManagerClose(entityManager);
-
-        JSONObject result = new JSONObject();
-        result.put("message", "OK");
-        List<Task> tasks = findTasksBy(currentUid);
-        JSONArray tasksJson = getTasksJson(tasks);
-        result.put("tasks", tasksJson);
-        return result.toString();
+        TaskRepository.getInstance().createTask(request.getParameter("uids"), request.getParameter("token"), request.getParameter("currentUid"));
+        return new JSONObject().toString();
     }
 
-    private List<Task> findTasksBy(String uid) throws JSONException {
-        EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
-        Query query = entityManager.createQuery(
-                "select t from " + Task.class.getName() + " t where t.uid = ? order by t.createdAt desc ")
-                .setParameter(1, uid);
-        List<Task> tasks = query.getResultList();
-        entityManagerClose(entityManager);
-
-        return tasks;
-    }
-
-    private EntityManager getEntityManager(String persistenceUnit) {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnit);
-        EntityManager entityManager = factory.createEntityManager();
-        entityManager.getTransaction().begin();
-        return entityManager;
-    }
-
-    private void entityManagerClose(EntityManager entityManager) {
-        entityManager.getTransaction().commit();
-        entityManager.close();
+    @RequestMapping(value = "/auth", method = RequestMethod.GET)
+    public String authentication() throws Exception {
+        return "auth";
     }
 
     private JSONArray getTasksJson(List<Task> tasks) throws JSONException {
@@ -321,10 +221,5 @@ public class PrettyPictureController {
                                 new PostParameter("feature", FEATURE_PIC),
                                 new PostParameter("page", page)}));
         return status.getStatuses();
-    }
-
-    @RequestMapping(value = "/auth", method = RequestMethod.GET)
-    public String authentication() throws Exception {
-        return "auth";
     }
 }

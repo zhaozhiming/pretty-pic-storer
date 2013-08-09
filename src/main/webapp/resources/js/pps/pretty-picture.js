@@ -32,13 +32,6 @@ $(document).ready(function () {
         });
     });
 
-    $("#dialog").dialog({
-        autoOpen: false,
-        dialogClass: "no-close",
-        modal: "true",
-        title: "结果"
-    });
-
     function getUrlTd(zipFileUrl) {
         var urlTd = "";
         if (zipFileUrl === "no") {
@@ -143,33 +136,17 @@ $(document).ready(function () {
             type: "POST",
             dataType: "text",
             beforeSend: function () {
-                $("#dialog").html("处理中...请稍候");
-                $("#dialog").dialog("option", "buttons", []);
-                $("#dialog").dialog("open");
+                $('#dialogModal').modal({
+                    keyboard: false
+                });
+                $("#dialogModalBody").html("处理中...请稍候");
             }
         }).done(function (data) {
-                var result = jQuery.parseJSON(data);
-                var message = result.message;
-                var htmlContent;
-
-                if (message === "OK") {
-                    htmlContent = "已开始为您保存图片，请稍后查看任务";
-                }
-
-                $("#dialog").html(htmlContent);
-                $("#dialog").dialog("option", "buttons", [
-                    { text: "Ok", click: function () {
-                        $(this).dialog("close");
-                    } }
-                ]);
-
+                $("#dialogModalBody").html("已开始为您保存图片，请稍后查看任务");
+                $("dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">close</button>');
             }).fail(function () {
-                $("#dialog").html("出错了！");
-                $("#dialog").dialog("option", "buttons", [
-                    { text: "Ok", click: function () {
-                        $(this).dialog("close");
-                    } }
-                ]);
+                $("#dialogModalBody").html("出错了！");
+                $("dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">close</button>');
             });
     });
 
