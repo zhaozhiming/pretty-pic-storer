@@ -75,6 +75,7 @@ $(document).ready(function () {
         createPagination();
     }
 
+    var currentPageNo = 1;
     function createPagination() {
         if($("#pages").length) $("#pages").remove();
 
@@ -90,11 +91,12 @@ $(document).ready(function () {
         pageNumbers.insertAfter('#taskTable');
         $('#taskTable').find('tbody tr').hide();
         var tr = $('#taskTable tbody tr');
-        for (var i = 0; i <= rowNumPerPage - 1; i++) {
+        for (var i = (currentPageNo - 1) * rowNumPerPage; i <= currentPageNo * rowNumPerPage - 1; i++) {
             $(tr[i]).show();
         }
 
         $('.page').click(function () {
+            currentPageNo = $(this).text();
             $('#taskTable').find('tbody tr').hide();
             for (i = ($(this).text() - 1) * rowNumPerPage; i <= $(this).text() * rowNumPerPage - 1; i++) {
                 $(tr[i]).show();
