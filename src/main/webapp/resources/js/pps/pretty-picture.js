@@ -135,11 +135,11 @@ $(document).ready(function () {
                 $("#dialogModalBody").html("处理中...请稍候");
             }
         }).done(function (data) {
-                $("#dialogModalBody").html("已开始为您保存图片，请稍后查看任务");
-                $("dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">close</button>');
+                $("#dialogModalBody").html("保存图片任务已创建，请稍后查看");
+                $("#dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>');
             }).fail(function () {
                 $("#dialogModalBody").html("出错了！");
-                $("dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">close</button>');
+                $("#dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>');
             });
     });
 
