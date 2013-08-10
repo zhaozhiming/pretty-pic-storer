@@ -77,7 +77,7 @@ public class TaskRepository {
 
     public void deleteTask(Task task) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-        entityManager.remove(task);
+        entityManager.remove(entityManager.contains(task) ? task : entityManager.merge(task));
         entityManagerClose(entityManager);
     }
 
@@ -85,9 +85,9 @@ public class TaskRepository {
         EntityManager entityManager = getEntityManager(QUERY_PERSISTENCE_UNIT);
         Query query = entityManager.createQuery(
                 "select t from " + Task.class.getName() +
-                        " t where t.status in ? and t.createdAt < ?")
-                .setParameter(1, asList(TASK_STATUS_DONE, TASK_STATUS_NOTHING))
-                .setParameter(2, YESTERDAYA.getMillis());
+                        " t where t.status in :tasks and t.createdAt < :yesterday")
+                .setParameter("tasks", asList(TASK_STATUS_DONE, TASK_STATUS_NOTHING))
+                .setParameter("yesterday", YESTERDAYA.getMillis());
         List<Task> tasks = query.getResultList();
         entityManagerClose(entityManager);
         return tasks;

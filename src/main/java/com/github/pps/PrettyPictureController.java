@@ -115,7 +115,6 @@ public class PrettyPictureController {
         if (tasks == null || tasks.isEmpty()) return new JSONObject().toString();
 
         for (Task task : tasks) {
-
             if (TASK_STATUS_DONE.equals(task.getStatus())) {
                 SaeStorage saeStorage = new SaeStorage();
                 String url = task.getUrl();
