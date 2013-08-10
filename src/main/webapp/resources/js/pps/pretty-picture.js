@@ -1,7 +1,5 @@
 $(document).ready(function () {
     $('body').css('background-image', 'url(' + $("#backgroundUrl").val() + ')');
-    $("#ppscontainer").css('background-color', 'white');
-    $("#ppscontainer").css('opacity', 0.8);
     $("#error").hide();
 
     function selectCallback(data) {
