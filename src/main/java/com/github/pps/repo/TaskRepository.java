@@ -50,9 +50,11 @@ public class TaskRepository {
         Query query = entityManager.createQuery(
                 "select t from " + Task.class.getName() + " t where t.status = ? order by t.createdAt desc")
                 .setParameter(1, TASK_STATUS_NEW).setMaxResults(1);
-        Task task = (Task) query.getSingleResult();
+        List<Task> tasks = query.getResultList();
         entityManagerClose(entityManager);
-        return task;
+
+        if (tasks == null || tasks.isEmpty()) return null;
+        return tasks.get(0);
     }
 
     public void updateTaskRunning(Long taskId) {
