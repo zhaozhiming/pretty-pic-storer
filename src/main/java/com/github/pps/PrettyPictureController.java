@@ -138,13 +138,27 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String createTask(HttpServletRequest request) throws Exception {
-        TaskRepository.getInstance().createTask(request.getParameter("uids"), request.getParameter("token"), request.getParameter("currentUid"));
+        String uids = request.getParameter("uids");
+        String token = request.getParameter("token");
+        String currentUid = request.getParameter("currentUid");
+        verifyRequestParam(uids, token, currentUid);
+
+        TaskRepository.getInstance().createTask(uids, token, currentUid);
         return new JSONObject().toString();
     }
 
     @RequestMapping(value = "/auth", method = RequestMethod.GET)
     public String authentication() throws Exception {
         return "auth";
+    }
+
+    private void verifyRequestParam(String... params) {
+        for (String param : params) {
+            System.out.println("request param: " + param);
+            if (Strings.isNullOrEmpty(param)) {
+                throw new RuntimeException("request param is empty, please check");
+            }
+        }
     }
 
     private String putZipToStorage(Task task, List<Status> totalStatuses) throws IOException {
@@ -169,9 +183,6 @@ public class PrettyPictureController {
     }
 
     private List<String> getUidList(String uids) {
-        if (Strings.isNullOrEmpty(uids)) {
-            throw new RuntimeException("uids is empty");
-        }
         System.out.println("uids:" + uids);
 
         String[] uidArray = uids.split(";");

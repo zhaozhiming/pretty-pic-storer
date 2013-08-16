@@ -40,9 +40,7 @@
                         <input id="friendSelector" type="button" value="选择好友" class="btn-info"/>
                         <input type="button" id="saveBtn" value="保存图片" class="btn-primary"/>
                     </div>
-                    <div id="error" class="alert alert-error">
-                        好友数量不能超过5个
-                    </div>
+                    <div id="error" class="alert alert-error"></div>
                 </fieldset>
             </div>
 

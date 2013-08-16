@@ -5,7 +5,7 @@ $(document).ready(function () {
 
     function selectCallback(data) {
         if (data.length > 5) {
-            $("#error").show().fadeOut(4000);
+            $("#error").html("好友数量不能超过5个").show().fadeOut(4000);
             return;
         }
 
@@ -128,6 +128,12 @@ $(document).ready(function () {
     queryUserTasks();
 
     $("#saveBtn").click(function () {
+        var friends = $("#friends").val();
+        if (friends === "") {
+            $("#error").html("请选择好友").show().fadeOut(4000);
+            return;
+        }
+
         var ajaxData = {
             uids: $("#uids").val(),
             currentUid: $("#currentUid").val(),
