@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.json.JSONException;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -15,20 +16,16 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 
+@Repository
 public class TaskRepository {
     private static final Log log = LogFactory.getLog(TaskRepository.class);
     private static final DateTime YESTERDAYA = DateTime.now().minusDays(1);
     private static final String MAIN_PERSISTENCE_UNIT = "mainPersistenceUnit";
     private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
-    private static TaskRepository taskRepository = new TaskRepository();
     private static final String TASK_STATUS_NEW = "new";
     private static final String TASK_STATUS_RUNNING = "running";
     private static final String TASK_STATUS_NOTHING = "nothing";
     public static final String TASK_STATUS_DONE = "done";
-
-    public static TaskRepository getInstance() {
-        return taskRepository;
-    }
 
     public void createTask(String uids, String token, String currentUid) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);

@@ -14,6 +14,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -46,6 +47,9 @@ public class PrettyPictureController {
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
     public static final String DOMAIN_NAME = "mydomain";
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Value("${appKey}")
     private String appKey;
@@ -89,11 +93,11 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String runTask() throws Exception {
-        Task task = TaskRepository.getInstance().findOneNewTask();
+        Task task = taskRepository.findOneNewTask();
         if (task == null) return new JSONObject().toString();
 
         Long taskId = task.getId();
-        TaskRepository.getInstance().updateTaskRunning(taskId);
+        taskRepository.updateTaskRunning(taskId);
 
         List<String> uidList = getUidList(task.getUids());
         List<Status> totalStatuses = getTotalStatuses(uidList, task.getToken());
@@ -101,12 +105,12 @@ public class PrettyPictureController {
         log.debug("totalStatuses size:" + totalStatusSize);
 
         if (totalStatusSize == 0) {
-            TaskRepository.getInstance().updateTaskNothing(taskId);
+            taskRepository.updateTaskNothing(taskId);
             return new JSONObject().toString();
         }
 
         String url = putZipToStorage(task, totalStatuses);
-        TaskRepository.getInstance().updateTaskDone(url, taskId);
+        taskRepository.updateTaskDone(url, taskId);
         return new JSONObject().toString();
     }
 
@@ -114,7 +118,7 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String deleteTasks() throws Exception {
-        List<Task> tasks = TaskRepository.getInstance().queryFinishedTasks();
+        List<Task> tasks = taskRepository.queryFinishedTasks();
         if (tasks == null || tasks.isEmpty()) return new JSONObject().toString();
 
         for (Task task : tasks) {
@@ -124,7 +128,7 @@ public class PrettyPictureController {
                 String fileName = url.substring(url.lastIndexOf("/") + 1);
                 saeStorage.delete(DOMAIN_NAME, fileName);
             }
-            TaskRepository.getInstance().deleteTask(task);
+            taskRepository.deleteTask(task);
         }
         return new JSONObject().toString();
     }
@@ -133,7 +137,7 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String queryTasks(@PathVariable String uid) throws Exception {
-        List<Task> tasks = TaskRepository.getInstance().findTasksBy(uid);
+        List<Task> tasks = taskRepository.findTasksBy(uid);
         return getTasksJson(tasks).toString();
     }
 
@@ -146,7 +150,7 @@ public class PrettyPictureController {
         String currentUid = request.getParameter("currentUid");
         verifyRequestParam(uids, token, currentUid);
 
-        TaskRepository.getInstance().createTask(uids, token, currentUid);
+        taskRepository.createTask(uids, token, currentUid);
         return new JSONObject().toString();
     }
 
