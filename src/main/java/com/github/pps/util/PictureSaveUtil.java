@@ -2,8 +2,9 @@ package com.github.pps.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipOutputStream;
 import org.joda.time.format.DateTimeFormat;
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.joda.time.DateTime.now;
 
 public class PictureSaveUtil {
+    private static final Log log = LogFactory.getLog(PictureSaveUtil.class);
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static final String ENCODING_GBK = "GBK";
     private static final String GIF_SUFFIX_LOWWER = "gif";
@@ -34,7 +36,7 @@ public class PictureSaveUtil {
             zos = new ZipOutputStream(aos);
             zos.setEncoding(ENCODING_GBK);
 
-            System.out.println("put all pic to zip");
+            log.debug("put all pic to zip");
             is = putAllPicToZip(statues, zos, is);
             IOUtils.closeQuietly(zos);
             return aos.toByteArray();
@@ -61,7 +63,7 @@ public class PictureSaveUtil {
                 originalPic = retweetedOriginalPic;
             }
 
-            System.out.println("originalPic:" + originalPic);
+            log.debug("originalPic:" + originalPic);
             String picName = originalPic.substring(originalPic.lastIndexOf("/") + 1);
             if (GIF_SUFFIX_LOWWER.equals(picName.split("\\.")[1])
                     || GIF_SUFFIX_UPPER.equals(picName.split("\\.")[1])) {
@@ -69,7 +71,7 @@ public class PictureSaveUtil {
             }
 
             String fullPicPath = getPicPath(status) + File.separator + picName;
-            System.out.println("full pic path:" + fullPicPath);
+            log.debug("full pic path:" + fullPicPath);
             if (picZipPath.contains(fullPicPath)) continue;
 
             picZipPath.add(fullPicPath);

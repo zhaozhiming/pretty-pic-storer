@@ -50,6 +50,8 @@ dependencies {
             "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
             "org.hibernate:hibernate-entitymanager:3.6.10.Final",
             "mysql:mysql-connector-java:5.1.25",
+            "log4j:log4j:1.2.17",
+            "org.slf4j:slf4j-log4j12:1.7.5",
     )
     testCompile(
             "junit:junit:4.+"

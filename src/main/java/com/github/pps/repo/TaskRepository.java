@@ -1,6 +1,8 @@
 package com.github.pps.repo;
 
 import com.github.pps.dto.Task;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 
@@ -14,6 +16,7 @@ import static java.util.Arrays.asList;
 import static org.joda.time.DateTime.now;
 
 public class TaskRepository {
+    private static final Log log = LogFactory.getLog(TaskRepository.class);
     private static final DateTime YESTERDAYA = DateTime.now().minusDays(1);
     private static final String MAIN_PERSISTENCE_UNIT = "mainPersistenceUnit";
     private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
@@ -68,9 +71,9 @@ public class TaskRepository {
     public void updateTaskDone(String url, Long taskId) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
 
-        System.out.println("taskid:" + taskId);
+        log.debug("taskid:" + taskId);
         Task task = entityManager.find(Task.class, taskId);
-        System.out.println("task:" + task);
+        log.debug("task:" + task);
         task.setStatus(TASK_STATUS_DONE);
         task.setUrl(url);
 
@@ -98,9 +101,9 @@ public class TaskRepository {
     private void updateTaskStatus(Long taskId, String status) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
 
-        System.out.println("taskid:" + taskId);
+        log.debug("taskid:" + taskId);
         Task task = entityManager.find(Task.class, taskId);
-        System.out.println("task:" + task);
+        log.debug("task:" + task);
         task.setStatus(status);
 
         entityManagerClose(entityManager);

@@ -6,6 +6,8 @@ import com.github.pps.util.PictureSaveUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.sina.sae.storage.SaeStorage;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -37,6 +39,7 @@ import static org.joda.time.DateTime.now;
 
 @Controller
 public class PrettyPictureController {
+    private static final Log log = LogFactory.getLog(PrettyPictureController.class);
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int MAX_COUNT = 100;
@@ -55,7 +58,7 @@ public class PrettyPictureController {
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public String index(ModelMap model) throws Exception {
-        System.out.println("start=================");
+        log.debug("pps start");
         model.addAttribute("appKey", appKey);
         model.addAttribute("callBackUrl", callBackUrl + "/main");
         return "index";
@@ -63,9 +66,9 @@ public class PrettyPictureController {
 
     @RequestMapping(value = "/main", method = RequestMethod.POST)
     public String listFriends(HttpServletRequest request, ModelMap model) throws Exception {
-        System.out.println("get user token start");
+        log.debug("get user token start");
         String signedRequest = request.getParameter("signed_request");
-        System.out.println(String.format("signed_request:%s", signedRequest));
+        log.debug(String.format("signed_request:%s", signedRequest));
 
         if (signedRequest == null) return "redirect:/";
         Oauth auth = new Oauth();
@@ -73,12 +76,12 @@ public class PrettyPictureController {
 
         if (auth.user_id == null) return "redirect:/";
 
-        System.out.println(String.format("accessToken:%s", auth.access_token));
-        System.out.println(String.format("user id:%s", auth.user_id));
+        log.debug(String.format("accessToken:%s", auth.access_token));
+        log.debug(String.format("user id:%s", auth.user_id));
         model.addAttribute("token", auth.access_token);
         model.addAttribute("appKey", appKey);
         model.addAttribute("currentUid", auth.user_id);
-        System.out.println("get user token finish");
+        log.debug("get user token finish");
         return "pretty-picture";
     }
 
@@ -95,7 +98,7 @@ public class PrettyPictureController {
         List<String> uidList = getUidList(task.getUids());
         List<Status> totalStatuses = getTotalStatuses(uidList, task.getToken());
         int totalStatusSize = totalStatuses.size();
-        System.out.println("totalStatuses size:" + totalStatusSize);
+        log.debug("totalStatuses size:" + totalStatusSize);
 
         if (totalStatusSize == 0) {
             TaskRepository.getInstance().updateTaskNothing(taskId);
@@ -154,7 +157,7 @@ public class PrettyPictureController {
 
     private void verifyRequestParam(String... params) {
         for (String param : params) {
-            System.out.println("request param: " + param);
+            log.debug("request param: " + param);
             if (Strings.isNullOrEmpty(param)) {
                 throw new RuntimeException("request param is empty, please check");
             }
@@ -178,19 +181,19 @@ public class PrettyPictureController {
             taskJson.put("zipFileUrl", (task.getUrl() == null) ? "no" : task.getUrl());
             tasksJson.put(taskJson);
         }
-        System.out.println("tasksJson:" + tasksJson);
+        log.debug("tasksJson:" + tasksJson);
         return tasksJson;
     }
 
     private List<String> getUidList(String uids) {
-        System.out.println("uids:" + uids);
+        log.debug("uids:" + uids);
 
         String[] uidArray = uids.split(";");
         List<String> uidList = asList(uidArray);
         if (uidList.size() > MAX_UID_SIZE) {
             throw new RuntimeException("uid size must be <= 5");
         }
-        System.out.println("uidList:" + uidList);
+        log.debug("uidList:" + uidList);
         return uidList;
     }
 
@@ -201,7 +204,7 @@ public class PrettyPictureController {
         while (flag) {
             List<Status> statuses = getHomeTimeLineStatuses(accessToken, page);
 
-            System.out.println(String.format("page:%d, statuses.size():%d", page, statuses.size()));
+            log.debug(String.format("page:%d, statuses.size():%d", page, statuses.size()));
             for (Status singleStatus : statuses) {
                 if (notTodayStatus(singleStatus)) {
                     flag = false;
@@ -212,7 +215,7 @@ public class PrettyPictureController {
                 if (!uidList.contains(uid)) continue;
 
                 totalStatuses.add(singleStatus);
-                System.out.println("picture create at time:" + new DateTime(singleStatus.getCreatedAt()).toString(
+                log.debug("picture create at time:" + new DateTime(singleStatus.getCreatedAt()).toString(
                         DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss")));
             }
             page++;
