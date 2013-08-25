@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 
 public class PictureSaveUtilTest {
 
-    private static final String ROOT_PATH = "d:/pic-save";
+    private static final String ROOT_PATH = "/home/kingzzm/pic-save";
     private static final long UID1 = 1000001L;
     private static final long UID2 = 1000002L;
     private static final String PICTURE_1 = "http://sae.sina.com.cn/static/image/index_service/level7.png";

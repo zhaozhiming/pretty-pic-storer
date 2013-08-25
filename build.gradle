@@ -8,7 +8,7 @@ compileJava {
 }
 
 jettyRun {
-    httpPort = 80
+    httpPort = 9898
 }
 
 repositories {
