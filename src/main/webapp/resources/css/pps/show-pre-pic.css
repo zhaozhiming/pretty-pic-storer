@@ -1,0 +1,7 @@
+.table td {
+    padding: 8px;
+    line-height: 20px;
+    text-align: left;
+    vertical-align: bottom;
+    border-top: 1px solid #ddd;
+}

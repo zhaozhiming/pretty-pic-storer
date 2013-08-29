@@ -74,5 +74,6 @@
     </div>
 
     <input id="publiswb" type="button" class="btn btn-danger" value="分享微博"/>
+</div>
 </body>
 </html>

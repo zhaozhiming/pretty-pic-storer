@@ -43,7 +43,7 @@ public class PrettyPictureController {
     private static final Log log = LogFactory.getLog(PrettyPictureController.class);
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int MAX_COUNT = 100;
+    private static final int MAX_COUNT = 30;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
     public static final String DOMAIN_NAME = "mydomain";
@@ -86,7 +86,7 @@ public class PrettyPictureController {
         model.addAttribute("appKey", appKey);
         model.addAttribute("currentUid", auth.user_id);
         log.debug("get user token finish");
-        return "pretty-picture";
+        return "show-pre-pic";
     }
 
     @RequestMapping(value = "/task/run", method = RequestMethod.GET)
@@ -157,6 +157,51 @@ public class PrettyPictureController {
     @RequestMapping(value = "/auth", method = RequestMethod.GET)
     public String authentication() throws Exception {
         return "auth";
+    }
+
+    @RequestMapping(value = "/pictures", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    public
+    @ResponseBody
+    String showStatusPictures(HttpServletRequest request) throws Exception {
+        log.debug("show status pictures start");
+        String token = request.getParameter("token");
+        log.debug("token:" + token);
+        verifyRequestParam(token);
+
+        List<Status> statuses = getHomeTimeLineStatuses(token, 1);
+        log.debug("statuses size:" + statuses.size());
+
+        JSONArray statusArrayJson = new JSONArray();
+        for (Status statuse : statuses) {
+            JSONObject statusJson = new JSONObject();
+            statusJson.put("id", statuse.getId());
+            statusJson.put("screenName", statuse.getUser().getScreenName());
+            statusJson.put("createdAt", new DateTime(statuse.getCreatedAt()).toString(FMT_SEC));
+            statusJson.put("text", statuse.getText());
+
+            String originalPic = statuse.getOriginalPic();
+            String thumbnailPic = statuse.getThumbnailPic();
+            if (Strings.isNullOrEmpty(originalPic)) {
+                Status retweetedStatus = statuse.getRetweetedStatus();
+                if (retweetedStatus == null) continue;
+
+                String retweetedOriginalPic = retweetedStatus.getOriginalPic();
+                if (Strings.isNullOrEmpty(retweetedOriginalPic)) continue;
+
+                originalPic = retweetedOriginalPic;
+                thumbnailPic = retweetedStatus.getThumbnailPic();
+            }
+
+            statusJson.put("originalPic", originalPic);
+            statusJson.put("thumbnailPic", thumbnailPic);
+
+            log.debug("statusJson:" + statusJson);
+            statusArrayJson.put(statusJson);
+        }
+
+        log.debug("statusArrayJson size:" + statusArrayJson.length());
+        log.debug("show status pictures finish");
+        return statusArrayJson.toString();
     }
 
     private void verifyRequestParam(String... params) {
