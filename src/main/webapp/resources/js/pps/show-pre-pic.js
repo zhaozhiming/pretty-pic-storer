@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('body').css('background-image', 'url(' + $("#backgroundUrl").val() + ')');
 
     function setcurrentPageNo(currentPage) {
         var pageNo = parseInt($("#currentPage").val());
@@ -61,9 +62,11 @@ $(document).ready(function () {
             table += "<td width='20%'><div>";
             table += "<img src='" + this.thumbnailPic + "' title='" + this.text + "'>";
             table += "<p>" + this.screenName + "</p>";
-            table += "<p><button class='btn btn-success' title='zoom in'>";
-            table += "<i class='icon-zoom-in icon-white'></i>";
-            table += "</button></p></div></td>";
+            table += "<p><a href='#myModal" + index + "' role='button' class='btn btn-success zoomIn' data-toggle='modal'>";
+            table += "<i class='icon-zoom-in icon-white'></i></a>";
+            table += "<div id='myModal" + index + "' class='modal hide fade' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>";
+            table += "<img src='" + this.originalPic + "'>";
+            table += "</div></p></div></td>";
 
             if (mod === 4) {
                 table += "</tr>";

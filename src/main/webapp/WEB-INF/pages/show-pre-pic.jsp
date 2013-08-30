@@ -21,6 +21,7 @@
 <body>
 <input id="token" name="token" value="${token}" type="hidden"/>
 <input id="picturesUrl" name="picturesUrl" value="<c:url value="/pictures" />" type="hidden"/>
+<input id="backgroundUrl" name="backgroundUrl" value="<c:url value="/resources/image/main-background.jpg" />" type="hidden"/>
 <input id="currentPage" name="currentPage" value="1" type="hidden"/>
 
 <div class="pagination">
