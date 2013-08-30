@@ -21,9 +21,31 @@
 <body>
 <input id="token" name="token" value="${token}" type="hidden"/>
 <input id="picturesUrl" name="picturesUrl" value="<c:url value="/pictures" />" type="hidden"/>
+<input id="currentPage" name="currentPage" value="1" type="hidden"/>
 
+<div class="pagination">
+    <ul>
+        <li class="active li1"><a href="#">1</a></li>
+        <li class="li2"><a href="#">2</a></li>
+        <li class="li3"><a href="#">3</a></li>
+        <li class="li4"><a href="#">4</a></li>
+        <li class="li5"><a href="#">5</a></li>
+        <li><a href="#">&gt;&gt;</a></li>
+    </ul>
+</div>
 
 <div id="pictureDisplay" class="row-fluid"></div>
+
+<div class="pagination">
+    <ul>
+        <li class="active li1"><a href="#">1</a></li>
+        <li class="li2"><a href="#">2</a></li>
+        <li class="li3"><a href="#">3</a></li>
+        <li class="li4"><a href="#">4</a></li>
+        <li class="li5"><a href="#">5</a></li>
+        <li><a href="#">&gt;&gt;</a></li>
+    </ul>
+</div>
 
 </body>
 </html>

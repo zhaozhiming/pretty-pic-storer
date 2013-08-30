@@ -40,13 +40,14 @@ import static org.joda.time.DateTime.now;
 
 @Controller
 public class PrettyPictureController {
+    public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final Log log = LogFactory.getLog(PrettyPictureController.class);
     private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
-    public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int MAX_COUNT = 30;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
-    public static final String DOMAIN_NAME = "mydomain";
+    private static final int FIRST_PAGE_NO = 1;
+    private static final String DOMAIN_NAME = "mydomain";
 
     @Autowired
     private TaskRepository taskRepository;
@@ -165,12 +166,22 @@ public class PrettyPictureController {
     String showStatusPictures(HttpServletRequest request) throws Exception {
         log.debug("show status pictures start");
         String token = request.getParameter("token");
+        String currentPage = request.getParameter("currentPage");
         log.debug("token:" + token);
-        verifyRequestParam(token);
+        log.debug("currentPage:" + currentPage);
+        verifyRequestParam(token, currentPage);
 
-        List<Status> statuses = getHomeTimeLineStatuses(token, 1);
+        List<Status> statuses = getHomeTimeLineStatuses(token, Integer.valueOf(currentPage));
         log.debug("statuses size:" + statuses.size());
 
+        JSONArray statusArrayJson = createStatusesJsonArray(statuses);
+        log.debug("statusArrayJson size:" + statusArrayJson.length());
+
+        log.debug("show status pictures finish");
+        return statusArrayJson.toString();
+    }
+
+    private JSONArray createStatusesJsonArray(List<Status> statuses) throws JSONException {
         JSONArray statusArrayJson = new JSONArray();
         for (Status statuse : statuses) {
             JSONObject statusJson = new JSONObject();
@@ -198,10 +209,7 @@ public class PrettyPictureController {
             log.debug("statusJson:" + statusJson);
             statusArrayJson.put(statusJson);
         }
-
-        log.debug("statusArrayJson size:" + statusArrayJson.length());
-        log.debug("show status pictures finish");
-        return statusArrayJson.toString();
+        return statusArrayJson;
     }
 
     private void verifyRequestParam(String... params) {
