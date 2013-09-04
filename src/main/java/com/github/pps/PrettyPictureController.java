@@ -183,6 +183,7 @@ public class PrettyPictureController {
 
     private JSONArray createStatusesJsonArray(List<Status> statuses) throws JSONException {
         JSONArray statusArrayJson = new JSONArray();
+        List<String> alreadyHavePics = Lists.newArrayList();
         for (Status statuse : statuses) {
             JSONObject statusJson = new JSONObject();
             statusJson.put("id", statuse.getId());
@@ -202,6 +203,9 @@ public class PrettyPictureController {
                 originalPic = retweetedOriginalPic;
                 thumbnailPic = retweetedStatus.getThumbnailPic();
             }
+
+            if (alreadyHavePics.contains(originalPic)) continue;
+            alreadyHavePics.add(originalPic);
 
             statusJson.put("originalPic", originalPic);
             statusJson.put("thumbnailPic", thumbnailPic);
