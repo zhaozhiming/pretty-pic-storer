@@ -46,7 +46,6 @@ public class PrettyPictureController {
     private static final int MAX_COUNT = 30;
     private static final int FEATURE_PIC = 2;
     private static final int MAX_UID_SIZE = 5;
-    private static final int FIRST_PAGE_NO = 1;
     private static final String DOMAIN_NAME = "mydomain";
 
     @Autowired

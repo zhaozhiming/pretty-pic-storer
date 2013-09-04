@@ -36,6 +36,13 @@
 </div>
 
 <div id="pictureDisplay" class="row-fluid"></div>
+<div>
+    <span id="fullSelect" hidden="true">
+        <input type="checkbox">全选
+        <button id="saveBtn" type='button' class='btn btn-success'>保存</button>
+    </span>
+    <button id="batchSaveBtn" type='button' class='btn btn-primary'>批量保存图片</button>
+</div>
 
 <div class="pagination">
     <ul>

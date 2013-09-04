@@ -29,15 +29,14 @@ $(document).ready(function () {
             ulContent += "<li class='li3' ><a href='#'>3</a></li>";
             ulContent += "<li class='li4' ><a href='#'>4</a></li>";
             ulContent += "<li class='li5' ><a href='#'>5</a></li>";
-            ulContent += "<li><a href='#'>&gt;&gt;</a></li>";
         } else {
             ulContent += "<li class='li" + (pageNo - 2) + "' ><a href='#'>" + (pageNo - 2) + "</a></li>";
             ulContent += "<li class='li" + (pageNo - 1) + "' ><a href='#'>" + (pageNo - 1) + "</a></li>";
             ulContent += "<li class='li" + pageNo + "' ><a href='#'>" + pageNo + "</a></li>";
             ulContent += "<li class='li" + (pageNo + 1) + "' ><a href='#'>" + (pageNo + 1) + "</a></li>";
             ulContent += "<li class='li" + (pageNo + 2) + "' ><a href='#'>" + (pageNo + 2) + "</a></li>";
-            ulContent += "<li><a href='#'>>></a></li>";
         }
+        ulContent += "<li><a href='#'>&gt;&gt;</a></li>";
         ulContent += "</ul>";
 
         $(".pagination").html(ulContent);
@@ -65,6 +64,7 @@ $(document).ready(function () {
             table += "<p>" + this.screenName + "</p>";
             table += "<p><a href='#myModal" + index + "' role='button' class='btn btn-success zoomIn' data-toggle='modal' title='查看原图'>";
             table += "<i class='icon-zoom-in icon-white'></i></a>";
+            table += "<input type='checkbox' name='batchPics' hidden='true' value='" + this.id +"'/>";
             table += "<div id='myModal" + index + "' data-rowindex='" + rowIndex + "' class='modal hide fade' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>";
             table += "<div class='modal-header'>";
             table += "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>X</button></div>";
@@ -110,6 +110,16 @@ $(document).ready(function () {
     $(".pagination li a").click(function () {
         createPagination(this);
         getPictures();
+    });
+
+    $("#batchSaveBtn").click(function () {
+        $("[name=batchPics]").toggle();
+        $("#fullSelect").toggle();
+    })
+
+    $("#saveBtn").click(function () {
+//        $("[name=batchPics]").toggle();
+//        $("#fullSelect").toggle();
     });
 
     $(".pagination li.li1 a").click();
