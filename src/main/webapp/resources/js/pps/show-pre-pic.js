@@ -41,7 +41,7 @@ $(document).ready(function () {
         ulContent += "</ul>";
 
         $(".pagination").html(ulContent);
-        $(".pagination li a").click(function() {
+        $(".pagination li a").click(function () {
             createPagination(this);
             getPictures();
 
@@ -54,6 +54,7 @@ $(document).ready(function () {
         var table = "<table class='table'><tbody>";
         $.each(statuses, function (index) {
             var mod = index % 5;
+            var rowIndex = index / 5;
 
             if (mod === 0) {
                 table += "<tr>";
@@ -64,9 +65,9 @@ $(document).ready(function () {
             table += "<p>" + this.screenName + "</p>";
             table += "<p><a href='#myModal" + index + "' role='button' class='btn btn-success zoomIn' data-toggle='modal' title='查看原图'>";
             table += "<i class='icon-zoom-in icon-white'></i></a>";
-            table += "<div id='myModal" + index + "' class='modal hide fade' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>";
+            table += "<div id='myModal" + index + "' data-rowindex='" + rowIndex + "' class='modal hide fade' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>";
             table += "<div class='modal-header'>";
-            table += "<button type='button' class='close btn-large' data-dismiss='modal' aria-hidden='true'>X</button></div>";
+            table += "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>X</button></div>";
             table += "<div class='modal-body'>";
             table += "<img src='" + this.originalPic + "'></div>";
             table += "</div></p></div></td>";
@@ -96,10 +97,17 @@ $(document).ready(function () {
                 var table = createTable(statuses);
 
                 $("#pictureDisplay").html(table);
-            });
+
+                $(".modal").on('shown', function () {
+                    var firstRowTop = $(".modal").first().position().top;
+                    $(this).css("top", firstRowTop);
+                    var rowIndex = parseInt($(this).data("rowindex"));
+                    $(this).css("top", firstRowTop + 200 * rowIndex);
+                })
+        });
     }
 
-    $(".pagination li a").click(function() {
+    $(".pagination li a").click(function () {
         createPagination(this);
         getPictures();
     });
