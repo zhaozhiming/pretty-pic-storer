@@ -37,6 +37,7 @@
 
 <div id="pictureDisplay" class="row-fluid"></div>
 <div>
+    <div id="error" class="alert alert-error" hidden="true"></div>
     <span id="fullSelectSpan" hidden="true">
         <button id="fullSelect" type='button' class='btn btn-success'>全选</button>
         <button id="saveBtn" type='button' class='btn btn-success'>保存</button>

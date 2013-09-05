@@ -137,7 +137,16 @@ $(document).ready(function () {
     });
 
     $("#saveBtn").click(function () {
+        var pictureIds = [];
+        if ($("[name=batchPics]:checked").length === 0) {
+            $("#error").html("请选择至少一张图片").show().fadeOut(4000);
+            return;
+        }
 
+        $('[name=batchPics]:checked').each(function(i) {
+            pictureIds[i] = $(this).val();
+        });
+        console.log(pictureIds);
 
     });
 
