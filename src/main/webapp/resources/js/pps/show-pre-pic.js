@@ -61,7 +61,7 @@ $(document).ready(function () {
 
             table += "<td width='20%'><div>";
             table += "<div class='image-container' name='smallImage'>";
-            table += "<img src='" + this.thumbnailPic + "' title='" + this.text + "'>";
+            table += "<img class='img-polaroid' src='" + this.thumbnailPic + "' title='" + this.text + "'>";
             table += "<input type='checkbox' name='batchPics' class='image-checkbox' hidden='true' value='" + this.id + "'/></div>";
             table += "<p>" + this.screenName + "</p>";
             table += "<p><a href='#myModal" + index + "' role='button' class='btn btn-success zoomIn' data-toggle='modal' title='查看原图'>";
