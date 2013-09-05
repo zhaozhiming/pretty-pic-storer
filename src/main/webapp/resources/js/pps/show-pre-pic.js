@@ -72,7 +72,7 @@ $(document).ready(function () {
             table += "<img src='" + this.originalPic + "'></div>";
             table += "</div></p></div></td>";
 
-            if (mod === 4) {
+            if (mod === 4 || index === (statuses.length - 1)) {
                 table += "</tr>";
             }
         });
