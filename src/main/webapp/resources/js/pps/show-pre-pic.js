@@ -114,12 +114,24 @@ $(document).ready(function () {
 
     $("#batchSaveBtn").click(function () {
         $("[name=batchPics]").toggle();
-        $("#fullSelect").toggle();
+        $("#fullSelectSpan").toggle();
+    })
+
+    $("#fullSelect").click(function() {
+        var checkedSize = $("input[name=batchPics]:checked").length;
+        var checkboxSize = $("input[name=batchPics]").length;
+        if (checkedSize === 0 || (checkedSize > 0 && checkedSize != checkboxSize)) {
+            $("input[name=batchPics]").prop("checked", true);
+        }
+
+        if (checkedSize === checkboxSize) {
+            $("input[name=batchPics]").prop("checked", false);
+        }
     })
 
     $("#saveBtn").click(function () {
-//        $("[name=batchPics]").toggle();
-//        $("#fullSelect").toggle();
+
+
     });
 
     $(".pagination li.li1 a").click();
