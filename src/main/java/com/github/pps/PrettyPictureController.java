@@ -99,7 +99,7 @@ public class PrettyPictureController {
         Long taskId = task.getId();
         taskRepository.updateTaskRunning(taskId);
 
-        List<String> uidList = getUidList(task.getUids());
+        List<String> uidList = getUidList(task.getStatueIds());
         List<Status> totalStatuses = getTotalStatuses(uidList, task.getToken());
         int totalStatusSize = totalStatuses.size();
         log.debug("totalStatuses size:" + totalStatusSize);
@@ -145,12 +145,12 @@ public class PrettyPictureController {
     public
     @ResponseBody
     String createTask(HttpServletRequest request) throws Exception {
-        String uids = request.getParameter("uids");
+        String statueIds = request.getParameter("statueIds");
         String token = request.getParameter("token");
         String currentUid = request.getParameter("currentUid");
-        verifyRequestParam(uids, token, currentUid);
+        verifyRequestParam(statueIds, token, currentUid);
 
-        taskRepository.createTask(uids, token, currentUid);
+        taskRepository.createTask(statueIds, token, currentUid);
         return new JSONObject().toString();
     }
 

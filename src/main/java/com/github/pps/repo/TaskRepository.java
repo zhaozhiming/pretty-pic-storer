@@ -27,9 +27,9 @@ public class TaskRepository {
     private static final String TASK_STATUS_NOTHING = "nothing";
     public static final String TASK_STATUS_DONE = "done";
 
-    public void createTask(String uids, String token, String currentUid) {
+    public void createTask(String statueIds, String token, String currentUid) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
-        Task task = new Task(currentUid, TASK_STATUS_NEW, now().getMillis(), uids, token);
+        Task task = new Task(currentUid, TASK_STATUS_NEW, now().getMillis(), statueIds, token);
         entityManager.persist(task);
         entityManagerClose(entityManager);
     }

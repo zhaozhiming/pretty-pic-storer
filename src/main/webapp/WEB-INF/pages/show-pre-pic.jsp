@@ -23,9 +23,11 @@
 
 <body>
 <input id="token" name="token" value="${token}" type="hidden"/>
+<input id="currentUid" name="currentUid" value="${currentUid}" type="hidden"/>
+<input id="userTasksUrl" name="userTasksUrl" value="<c:url value="/tasks/${currentUid}" />" type="hidden"/>
 <input id="picturesUrl" name="picturesUrl" value="<c:url value="/pictures" />" type="hidden"/>
-<input id="backgroundUrl" name="backgroundUrl" value="<c:url value="/resources/image/main-background.jpg" />"
-       type="hidden"/>
+<input id="saveUrl" name="saveUrl" value="<c:url value="/task/create" />" type="hidden"/>
+<input id="backgroundUrl" name="backgroundUrl" value="<c:url value="/resources/image/main-background.jpg" />" type="hidden"/>
 <input id="currentPage" name="currentPage" value="1" type="hidden"/>
 
 
@@ -56,6 +58,18 @@
                 <button id="saveBtn" type='button' class='btn btn-success'>保存</button>
             </span>
             <button id="batchSaveBtn" type='button' class='btn btn-primary'>批量保存图片</button>
+            <button id="publiswb" type='button' class='btn btn-danger'>分享微博</button>
+
+            <div id="dialogModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="dialogModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <h3 id="dialogModalLabel">保存图片</h3>
+                </div>
+                <div id="dialogModalBody" class="modal-body">
+                </div>
+                <div id="dialogModalFooter" class="modal-footer">
+                </div>
+            </div>
+
         </div>
 
         <div class="pagination">
