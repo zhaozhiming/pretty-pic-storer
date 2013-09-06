@@ -39,14 +39,19 @@ $(document).ready(function () {
         ulContent += "<li><a href='#'>&gt;&gt;</a></li>";
         ulContent += "</ul>";
 
-        $(".pagination").html(ulContent);
-        $(".pagination li a").click(function () {
+        $("#picturesLabel .pagination").html(ulContent);
+        $("#picturesLabel .pagination li a").click(function () {
             createPagination(this);
             getPictures();
 
         });
-        $(".pagination li.li" + pageNo).addClass("active");
-        $(".pagination li.li" + pageNo + " a").off("click");
+        $("#picturesLabel .pagination li.li" + pageNo).addClass("active");
+        $("#picturesLabel .pagination li.li" + pageNo + " a").off("click");
+
+        if ($("#fullSelectSpan").is(":visible")) {
+            $("#fullSelectSpan").toggle();
+            $("[name=batchPics]").toggle();
+        }
     }
 
     function createTable(statuses) {
@@ -114,7 +119,7 @@ $(document).ready(function () {
             });
     }
 
-    $(".pagination li a").click(function () {
+    $("#picturesLabel .pagination li a").click(function () {
         createPagination(this);
         getPictures();
     });
@@ -137,7 +142,7 @@ $(document).ready(function () {
     });
 
     var currentPageNo = 1;
-    function createPagination() {
+    function createTaskPagination() {
         if ($("#pages").length) $("#pages").remove();
 
         var rows = $('#taskTable').find('tbody tr').length;
@@ -216,7 +221,7 @@ $(document).ready(function () {
             tblBody += tblRow + "</tr>";
         });
         $("#taskTable tbody").html(tblBody);
-        createPagination();
+        createTaskPagination();
     }
 
     function queryUserTasks() {
@@ -269,7 +274,7 @@ $(document).ready(function () {
 
     });
 
-    $(".pagination li.li1 a").click();
-    $(".pagination li.li1 a").off("click");
+    $("#picturesLabel .pagination li.li1 a").click();
+    $("#picturesLabel .pagination li.li1 a").off("click");
 
 });
