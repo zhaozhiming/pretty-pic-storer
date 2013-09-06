@@ -194,11 +194,6 @@ $(document).ready(function () {
                 statusTd = "处理中";
                 urlTd = "任务处理中，请稍后查看";
                 break;
-            case "nothing":
-                tblRow += "<tr class='success'>"
-                statusTd = "完成";
-                urlTd = "没有搜索到图片可以下载";
-                break;
             case "done":
                 tblRow += "<tr class='success'>"
                 statusTd = "完成";

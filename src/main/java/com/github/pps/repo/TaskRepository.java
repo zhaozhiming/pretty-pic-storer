@@ -24,7 +24,6 @@ public class TaskRepository {
     private static final String QUERY_PERSISTENCE_UNIT = "queryPersistenceUnit";
     private static final String TASK_STATUS_NEW = "new";
     private static final String TASK_STATUS_RUNNING = "running";
-    private static final String TASK_STATUS_NOTHING = "nothing";
     public static final String TASK_STATUS_DONE = "done";
 
     public void createTask(String statueIds, String token, String currentUid) {
@@ -61,10 +60,6 @@ public class TaskRepository {
         updateTaskStatus(taskId, TASK_STATUS_RUNNING);
     }
 
-    public void updateTaskNothing(Long taskId) {
-        updateTaskStatus(taskId, TASK_STATUS_NOTHING);
-    }
-
     public void updateTaskDone(String url, Long taskId) {
         EntityManager entityManager = getEntityManager(MAIN_PERSISTENCE_UNIT);
 
@@ -88,7 +83,7 @@ public class TaskRepository {
         Query query = entityManager.createQuery(
                 "select t from " + Task.class.getName() +
                         " t where t.status in :tasks and t.createdAt < :yesterday")
-                .setParameter("tasks", asList(TASK_STATUS_DONE, TASK_STATUS_NOTHING))
+                .setParameter("tasks", asList(TASK_STATUS_DONE))
                 .setParameter("yesterday", YESTERDAYA.getMillis());
         List<Task> tasks = query.getResultList();
         entityManagerClose(entityManager);

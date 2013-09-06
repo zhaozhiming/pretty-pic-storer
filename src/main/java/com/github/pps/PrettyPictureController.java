@@ -42,10 +42,8 @@ import static org.joda.time.DateTime.now;
 public class PrettyPictureController {
     public static final DateTimeFormatter FMT_SEC = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final Log log = LogFactory.getLog(PrettyPictureController.class);
-    private static final DateTime COMPARE_DATE = DateTime.now().withTime(0, 0, 0, 0);
     private static final int MAX_COUNT = 30;
     private static final int FEATURE_PIC = 2;
-    private static final int MAX_UID_SIZE = 5;
     private static final String DOMAIN_NAME = "mydomain";
 
     @Autowired
@@ -99,15 +97,10 @@ public class PrettyPictureController {
         Long taskId = task.getId();
         taskRepository.updateTaskRunning(taskId);
 
-        List<String> uidList = getUidList(task.getStatueIds());
-        List<Status> totalStatuses = getTotalStatuses(uidList, task.getToken());
+        List<String> statusIdList = getStatusIdList(task.getStatueIds());
+        List<Status> totalStatuses = getStatusesByIds(task.getToken(), statusIdList);
         int totalStatusSize = totalStatuses.size();
         log.debug("totalStatuses size:" + totalStatusSize);
-
-        if (totalStatusSize == 0) {
-            taskRepository.updateTaskNothing(taskId);
-            return new JSONObject().toString();
-        }
 
         String url = putZipToStorage(task, totalStatuses);
         taskRepository.updateTaskDone(url, taskId);
@@ -245,46 +238,16 @@ public class PrettyPictureController {
         return tasksJson;
     }
 
-    private List<String> getUidList(String uids) {
-        log.debug("uids:" + uids);
+    private List<String> getStatusIdList(String statueIds) {
+        log.debug("statueIds:" + statueIds);
 
-        String[] uidArray = uids.split(";");
-        List<String> uidList = asList(uidArray);
-        if (uidList.size() > MAX_UID_SIZE) {
-            throw new RuntimeException("uid size must be <= 5");
+        String[] statueIdArray = statueIds.split(";");
+        List<String> statueIdList = asList(statueIdArray);
+        if (statueIdList.size() == 0) {
+            throw new RuntimeException("statue list size should not be 0");
         }
-        log.debug("uidList:" + uidList);
-        return uidList;
-    }
-
-    private List<Status> getTotalStatuses(List<String> uidList, String accessToken) throws WeiboException {
-        int page = 1;
-        List<Status> totalStatuses = Lists.newArrayList();
-        boolean flag = true;
-        while (flag) {
-            List<Status> statuses = getHomeTimeLineStatuses(accessToken, page);
-
-            log.debug(String.format("page:%d, statuses.size():%d", page, statuses.size()));
-            for (Status singleStatus : statuses) {
-                if (notTodayStatus(singleStatus)) {
-                    flag = false;
-                    break;
-                }
-
-                String uid = singleStatus.getUser().getId();
-                if (!uidList.contains(uid)) continue;
-
-                totalStatuses.add(singleStatus);
-                log.debug("picture create at time:" + new DateTime(singleStatus.getCreatedAt()).toString(
-                        DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss")));
-            }
-            page++;
-        }
-        return totalStatuses;
-    }
-
-    private boolean notTodayStatus(Status singleStatus) {
-        return new DateTime(singleStatus.getCreatedAt()).isBefore(COMPARE_DATE.toDate().getTime());
+        log.debug("statueIdList:" + statueIdList);
+        return statueIdList;
     }
 
     private List<Status> getHomeTimeLineStatuses(String accessToken, int page) throws WeiboException {
@@ -297,5 +260,16 @@ public class PrettyPictureController {
                                 new PostParameter("feature", FEATURE_PIC),
                                 new PostParameter("page", page)}));
         return status.getStatuses();
+    }
+
+    private List<Status> getStatusesByIds(String accessToken, List<String> statusIds) throws WeiboException {
+        Timeline tm = new Timeline();
+        tm.client.setToken(accessToken);
+
+        List<Status> statuses = Lists.newArrayList();
+        for (String statusId : statusIds) {
+            statuses.add(tm.showStatus(statusId));
+        }
+        return statuses;
     }
 }
