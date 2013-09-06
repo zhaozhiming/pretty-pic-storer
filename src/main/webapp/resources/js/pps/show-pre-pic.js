@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('body').css('background-image', 'url(' + $("#backgroundUrl").val() + ')');
 
-    function setcurrentPageNo(currentPage) {
+    function setCurrentPageNo(currentPage) {
         var pageNo = parseInt($("#currentPage").val());
         if (currentPage.html() === "&lt;&lt;") {
             pageNo = pageNo - 1;
@@ -15,10 +15,7 @@ $(document).ready(function () {
         return pageNo;
     }
 
-    function createPagination(currentPage) {
-        var currentPageJquery = $(currentPage);
-        var pageNo = setcurrentPageNo(currentPageJquery);
-
+    function createPicPaginationBy(pageNo) {
         var ulContent = "<ul>";
         if (pageNo !== 1) {
             ulContent += "<li><a href='#'>&lt;&lt;</a></li>";
@@ -41,7 +38,7 @@ $(document).ready(function () {
 
         $("#picturesLabel .pagination").html(ulContent);
         $("#picturesLabel .pagination li a").click(function () {
-            createPagination(this);
+            createPicPagination(this);
             getPictures();
 
         });
@@ -52,6 +49,12 @@ $(document).ready(function () {
             $("#fullSelectSpan").toggle();
             $("[name=batchPics]").toggle();
         }
+    }
+
+    function createPicPagination(currentPage) {
+        var currentPageJquery = $(currentPage);
+        var pageNo = setCurrentPageNo(currentPageJquery);
+        createPicPaginationBy(pageNo);
     }
 
     function createTable(statuses) {
@@ -118,11 +121,6 @@ $(document).ready(function () {
                 });
             });
     }
-
-    $("#picturesLabel .pagination li a").click(function () {
-        createPagination(this);
-        getPictures();
-    });
 
     $("#batchSaveBtn").click(function () {
         $("[name=batchPics]").toggle();
@@ -274,7 +272,6 @@ $(document).ready(function () {
 
     });
 
-    $("#picturesLabel .pagination li.li1 a").click();
-    $("#picturesLabel .pagination li.li1 a").off("click");
-
+    createPicPaginationBy(1);
+    getPictures();
 });

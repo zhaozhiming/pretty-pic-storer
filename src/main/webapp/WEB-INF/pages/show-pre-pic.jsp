@@ -39,16 +39,7 @@
 <div class="tab-content">
     <div class="tab-pane active" id="picturesLabel">
 
-        <div class="pagination">
-            <ul>
-                <li class="active li1"><a href="#">1</a></li>
-                <li class="li2"><a href="#">2</a></li>
-                <li class="li3"><a href="#">3</a></li>
-                <li class="li4"><a href="#">4</a></li>
-                <li class="li5"><a href="#">5</a></li>
-                <li><a href="#">&gt;&gt;</a></li>
-            </ul>
-        </div>
+        <div class="pagination"></div>
 
         <div id="pictureDisplay" class="row-fluid"></div>
         <div>
@@ -72,16 +63,7 @@
 
         </div>
 
-        <div class="pagination">
-            <ul>
-                <li class="active li1"><a href="#">1</a></li>
-                <li class="li2"><a href="#">2</a></li>
-                <li class="li3"><a href="#">3</a></li>
-                <li class="li4"><a href="#">4</a></li>
-                <li class="li5"><a href="#">5</a></li>
-                <li><a href="#">&gt;&gt;</a></li>
-            </ul>
-        </div>
+        <div class="pagination"></div>
     </div>
     <div class="tab-pane" id="taskLabel">
         <h3>我的任务</h3>
