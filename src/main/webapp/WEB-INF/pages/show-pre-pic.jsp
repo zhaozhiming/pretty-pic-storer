@@ -33,7 +33,7 @@
 
 <ul class="nav nav-tabs" id="myTab">
     <li class="active"><a href="#picturesLabel" data-toggle="tab">微博图片</a></li>
-    <li><a href="#taskLabel" data-toggle="tab">任务</a></li>
+    <li><a id="taskLabelHref" href="#taskLabel" data-toggle="tab">任务</a></li>
 </ul>
 
 <div class="tab-content">

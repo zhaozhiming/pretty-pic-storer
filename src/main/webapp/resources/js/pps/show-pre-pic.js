@@ -187,10 +187,12 @@ $(document).ready(function () {
             case "new":
                 tblRow += "<tr class='info'>"
                 statusTd = "新建";
+                urlTd = "任务还未处理，请稍后查看";
                 break;
             case "running":
                 tblRow += "<tr class='warning'>"
                 statusTd = "处理中";
+                urlTd = "任务处理中，请稍后查看";
                 break;
             case "nothing":
                 tblRow += "<tr class='success'>"
@@ -270,6 +272,10 @@ $(document).ready(function () {
                 $("#dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">关闭</button>');
             });
 
+    });
+
+    $('#taskLabelHref').on('shown', function (e) {
+        queryUserTasks();
     });
 
     createPicPaginationBy(1);
