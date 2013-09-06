@@ -21,7 +21,7 @@ public class Task {
     @Basic
     private Long createdAt;
 
-    @Basic
+    @Column(columnDefinition="varchar(700)")
     private String statueIds;
 
     @Basic

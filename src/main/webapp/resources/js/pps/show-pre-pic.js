@@ -259,14 +259,9 @@ $(document).ready(function () {
                 $("#dialogModalBody").html("处理中...请稍候");
             }
         }).done(function (data) {
-                $("#dialogModalBody").html("保存图片任务已创建，请稍后查看");
+                $("#dialogModalBody").html("已为您创建保存图片任务，请到任务标签页下载");
                 var okBtn = '<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">关闭</button>';
-                var publishBtnClick = "$('#publiswb').click()";
-                var publishBtn = '<button id="publishBtn" class="btn btn-danger" data-dismiss="modal" aria-hidden="true" onclick="' + publishBtnClick + '">分享微博</button>';
-                var buttons = okBtn + publishBtn;
-                $("#dialogModalFooter").html(buttons);
-
-                queryUserTasks();
+                $("#dialogModalFooter").html(okBtn);
             }).fail(function () {
                 $("#dialogModalBody").html("出错了！");
                 $("#dialogModalFooter").html('<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">关闭</button>');
