@@ -51,7 +51,7 @@
             <button id="batchSaveBtn" type='button' class='btn btn-primary'>批量保存图片</button>
             <button id="publiswb" type='button' class='btn btn-danger'>分享微博</button>
 
-            <div id="dialogModal" class="modal hide fade" data-rowindex='6' tabindex="-1" role="dialog" aria-labelledby="dialogModalLabel" aria-hidden="true">
+            <div id="dialogModal" class="modal hide fade" data-rowindex='6' tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-header">
                     <h3 id="dialogModalLabel">保存图片</h3>
                 </div>
