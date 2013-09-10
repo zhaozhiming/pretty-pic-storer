@@ -69,7 +69,7 @@ $(document).ready(function () {
 
             table += "<td width='20%'><div>";
             table += "<div class='image-container' name='smallImage'>";
-            table += "<img class='img-polaroid' src='" + this.thumbnailPic + "' title='" + this.text + "'>";
+            table += "<img class='lazy img-polaroid' data-original='" + this.thumbnailPic + "' src='" + $("#picLoading").val() + "' title='" + this.text + "'>";
             table += "<input type='checkbox' name='batchPics' class='image-checkbox' hidden='true' value='" + this.id + "'/></div>";
             table += "<p>" + this.screenName + "</p>";
             table += "<p><a href='#myModal" + index + "' role='button' class='btn btn-success zoomIn' data-toggle='modal' title='查看原图'>";
@@ -117,7 +117,11 @@ $(document).ready(function () {
                 $("[name=smallImage]").click(function () {
                     var checkbox = $(this).find("[name=batchPics]");
                     checkbox.prop("checked", !checkbox.prop("checked"));
+                });
 
+                $("img.lazy").lazyload({
+                    effect : "fadeIn",
+                    skip_invisible : false
                 });
             });
     }
