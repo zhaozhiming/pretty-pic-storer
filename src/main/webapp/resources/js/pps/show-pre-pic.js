@@ -179,7 +179,7 @@ $(document).ready(function () {
     WB2.anyWhere(function(W){
         W.widget.publish({
             'id' : "publiswb",
-            'default_text' : '我通过"美图微存"保存了好友的图片，你们也来试试吧!http://apps.weibo.com/prettypicturequery/',
+            'default_text' : '我通过"以图示人"保存了好友的图片，你们也来试试吧!http://apps.weibo.com/prettypicturequery/',
             'default_image' : 'http://ww3.sinaimg.cn/square/94dfffbcgw1e79kdr4475j20280283yc.jpg'
         });
     });
