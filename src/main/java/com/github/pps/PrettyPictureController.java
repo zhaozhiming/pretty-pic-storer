@@ -61,9 +61,7 @@ public class PrettyPictureController {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public String index(ModelMap model) throws Exception {
         log.debug("pps start");
-        model.addAttribute("appKey", appKey);
-        model.addAttribute("callBackUrl", callBackUrl + "/main");
-        return "index";
+        return gotoIndex(model);
     }
 
     @RequestMapping(value = "/main", method = RequestMethod.POST)
@@ -72,11 +70,11 @@ public class PrettyPictureController {
         String signedRequest = request.getParameter("signed_request");
         log.debug(String.format("signed_request:%s", signedRequest));
 
-        if (signedRequest == null) return "redirect:/";
+        if (Strings.isNullOrEmpty(signedRequest)) return gotoIndex(model);
         Oauth auth = new Oauth();
         auth.parseSignedRequest(signedRequest);
 
-        if (auth.user_id == null) return "redirect:/";
+        if (Strings.isNullOrEmpty(auth.user_id)) return gotoIndex(model);
 
         log.debug(String.format("accessToken:%s", auth.access_token));
         log.debug(String.format("user id:%s", auth.user_id));
@@ -171,6 +169,12 @@ public class PrettyPictureController {
 
         log.debug("show status pictures finish");
         return statusArrayJson.toString();
+    }
+
+    private String gotoIndex(ModelMap model) {
+        model.addAttribute("appKey", appKey);
+        model.addAttribute("callBackUrl", callBackUrl + "/main");
+        return "index";
     }
 
     private JSONArray createStatusesJsonArray(List<Status> statuses) throws JSONException {
