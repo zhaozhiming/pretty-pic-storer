@@ -38,6 +38,7 @@ $(document).ready(function () {
 
         $("#picturesLabel .pagination").html(ulContent);
         $("#picturesLabel .pagination li a").click(function () {
+            $("img.lazy").attr("src", $("#picLoading").val());
             createPicPagination(this);
             getPictures();
 
@@ -120,8 +121,8 @@ $(document).ready(function () {
                 });
 
                 $("img.lazy").lazyload({
-                    effect : "fadeIn",
-                    skip_invisible : false
+                    effect: "fadeIn",
+                    skip_invisible: false
                 });
             });
     }
@@ -144,6 +145,7 @@ $(document).ready(function () {
     });
 
     var currentPageNo = 1;
+
     function createTaskPagination() {
         if ($("#pages").length) $("#pages").remove();
 
@@ -176,11 +178,11 @@ $(document).ready(function () {
         'access_token': $("#token").val()
     });
 
-    WB2.anyWhere(function(W){
+    WB2.anyWhere(function (W) {
         W.widget.publish({
-            'id' : "publiswb",
-            'default_text' : '我通过"以图示人"保存了好友的图片，你们也来试试吧!http://apps.weibo.com/prettypicturequery/',
-            'default_image' : 'http://ww3.sinaimg.cn/square/94dfffbcgw1e79kdr4475j20280283yc.jpg'
+            'id': "publiswb",
+            'default_text': '我通过"以图示人"保存了好友的图片，你们也来试试吧!http://apps.weibo.com/prettypicturequery/',
+            'default_image': 'http://ww3.sinaimg.cn/square/94dfffbcgw1e79kdr4475j20280283yc.jpg'
         });
     });
 
